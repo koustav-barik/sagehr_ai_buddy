@@ -1,0 +1,179 @@
+# sagehr_ai_buddy
+
+A shared AI prompt library for the SageHR engineering team — developers, QA, and code reviewers working inside `rails-cakehr`.
+
+---
+
+## How It Works
+
+This repo holds all team AI prompts as **VS Code Copilot customization files**. Once installed into `rails-cakehr`, they surface in two places:
+
+| What you get | How to invoke | File type |
+|---|---|---|
+| **Specialized AI agents** (initial-analysis, pr-code-review) | Select from the **agent mode picker** in Copilot Chat | `.agent.md` |
+| **Reusable editable prompts** (dev-*, qa-*, code-review-*, write-specs, suggestion-quality) | Type `/` in Copilot Chat → pick from the list | `.prompt.md` |
+| **Always-on coding conventions** (Rails, RSpec, code quality) | Auto-injected when relevant files are open | `.instructions.md` |
+
+---
+
+## Quick Start
+
+**1. Clone this repo** (if you haven't already):
+```bash
+cd ~/development
+git clone <this-repo-url> sagehr_ai_buddy
+```
+
+**2. Run the install script** to link prompts into `rails-cakehr`:
+```bash
+cd sagehr_ai_buddy
+./install.sh
+# or specify a different target:
+./install.sh /path/to/your/rails-cakehr
+```
+
+**3. Open `rails-cakehr` in VS Code** — the prompts are live immediately.
+
+---
+
+## Directory Structure
+
+```
+.github/
+├── agents/
+│   ├── initial-analysis.agent.md       # Ticket → relevant code + change plan (Jira-aware)
+│   ├── pr-code-review.agent.md         # GitHub PR URL → comprehensive review
+│   └── jira.agent.md                   # Fetch Jira ticket details on demand
+scripts/
+│   └── jira-fetch.sh                   # curl + Python script; reads from .env.jira
+.env.jira.example                       # Credential template (copy to .env.jira)
+├── prompts/
+│   ├── write-specs.prompt.md           # Write RSpec tests for PR changes
+│   ├── suggestion-quality.prompt.md    # Critical review of PR changes
+│   ├── dev-debug.prompt.md
+│   ├── dev-refactor.prompt.md
+│   ├── dev-explain.prompt.md
+│   ├── dev-pr-description.prompt.md
+│   ├── dev-migration.prompt.md
+│   ├── dev-seed-factory.prompt.md
+│   ├── qa-test-plan.prompt.md
+│   ├── qa-regression.prompt.md
+│   ├── qa-bug-report.prompt.md
+│   ├── qa-acceptance-criteria.prompt.md
+│   ├── code-review-checklist.prompt.md
+│   ├── code-review-security.prompt.md
+│   └── code-review-performance.prompt.md
+└── instructions/
+    ├── rails-conventions.instructions.md
+    ├── rspec-conventions.instructions.md
+    └── code-quality.instructions.md
+install.sh                              # One-time setup per developer
+sagehr.code-workspace                  # Alternative: multi-root workspace
+```
+
+---
+
+## Using the Agents
+
+Switch to the agent in the **Copilot Chat mode picker** (the dropdown next to the chat input):
+
+### `initial-analysis`
+Paste a Jira ticket key **or** paste ticket text directly and this agent will:
+- Fetch the ticket from Jira automatically if you give it a key (e.g. `CHR-6367`)
+- Find every file in `rails-cakehr` that is relevant to the ticket
+- Map the current logic flow (routes → controller → service → model)
+- List exactly what needs to be added, modified, or deleted
+
+### `jira`
+Fetch any Jira ticket into your Copilot session on demand:
+- `CHR-6367` → full ticket: summary, description, subtasks, recent comments
+- Add `analyse` or `plan` to proceed into codebase exploration
+
+### `pr-code-review`
+Paste a GitHub PR URL and this agent will:
+- Fetch the PR from GitHub and switch to that branch locally
+- Read all changed files in the PR
+- Perform a comprehensive architectural review covering: correctness, security, performance, testing, multi-tenancy, Rails conventions, and code quality
+- Return a structured review with 🔴 blocking issues / 🟡 improvements / 🔵 suggestions
+- Consult the project's instruction files to ensure alignment with team standards
+
+---
+
+## Using the Prompts (`/` commands)
+
+Type `/` in Copilot Chat and start typing the prompt name. The prompt text appears in the chat input as **editable text** — review and customize before submitting.
+
+| Command | Use case |
+|---|---|
+| `/write-specs` | Write RSpec tests for current PR changes |
+| `/suggestion-quality` | Critical review of current PR implementation |
+| `/dev-debug` | Systematically work through a bug |
+| `/dev-refactor` | Refactor code to Rails conventions |
+| `/dev-explain` | Explain a complex piece of code |
+| `/dev-pr-description` | Draft a PR description from your changes |
+| `/dev-migration` | Plan and write a DB migration safely |
+| `/dev-seed-factory` | Generate FactoryBot factories / seed data |
+| `/qa-test-plan` | Write a feature test plan |
+| `/qa-regression` | Identify what could break from this change |
+| `/qa-bug-report` | Structure a detailed bug report |
+| `/qa-acceptance-criteria` | Review or write acceptance criteria |
+| `/code-review-checklist` | Full code review against team standards |
+| `/code-review-security` | Security-focused review |
+| `/code-review-performance` | Performance and query optimization review |
+
+---
+
+## Jira Integration Setup
+
+The `jira` agent and `initial-analysis` agent can fetch tickets directly from Jira using the REST API. This replaces copy-pasting ticket text.
+
+**1. Get a Jira API token:**
+> https://id.atlassian.com/manage-profile/security/api-tokens
+
+**2. Create your credentials file** (never committed — already in `.gitignore`):
+```bash
+cd ~/development/sagehr_ai_buddy
+cp .env.jira.example .env.jira
+# then edit .env.jira and fill in your email + token
+```
+
+**3. Test it:**
+```bash
+./scripts/jira-fetch.sh CHR-6367
+```
+You should see a formatted Markdown summary of the ticket printed to stdout.
+
+**4. Use it in Copilot:**
+- Switch to the **`jira`** agent and type `CHR-6367`
+- Or switch to **`initial-analysis`** and type `CHR-6367` — it fetches then analyses automatically
+
+> **Note:** `JIRA_BASE_URL` defaults to `https://cakehr.atlassian.net`. Override it in `.env.jira` if needed.
+
+---
+
+## Keeping Prompts Updated
+
+All prompts live in this repo. To get the latest:
+```bash
+cd ~/development/sagehr_ai_buddy
+git pull
+```
+Because the install uses symlinks, changes are instantly available in `rails-cakehr` — no reinstall needed.
+
+---
+
+## Contributing a New Prompt
+
+1. Create a `.prompt.md` or `.agent.md` file in the right `.github/` subdirectory
+2. Follow the frontmatter format of existing files
+3. Open a PR — the whole team benefits immediately on merge
+
+---
+
+## Alternative: Multi-Root Workspace
+
+If you prefer not to symlink, open the bundled workspace file:
+```bash
+code sagehr.code-workspace
+```
+VS Code will load both `sagehr_ai_buddy` and `rails-cakehr` as workspace roots, making all prompts available without any file system changes.

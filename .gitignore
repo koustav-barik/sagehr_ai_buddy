@@ -1,0 +1,3 @@
+# Jira credentials — never commit real tokens
+.env.jira
+.env

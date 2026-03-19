@@ -1,0 +1,23 @@
+{
+  "folders": [
+    {
+      "name": "rails-cakehr",
+      "path": "../rails-cakehr"
+    },
+    {
+      "name": "sagehr_ai_buddy",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "chat.promptFilesRecommendations": true,
+    "chat.promptFiles": true,
+    "github.copilot.chat.agent.runTasks": true
+  },
+  "extensions": {
+    "recommendations": [
+      "github.copilot",
+      "github.copilot-chat"
+    ]
+  }
+}
