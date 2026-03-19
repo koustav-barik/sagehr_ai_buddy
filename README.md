@@ -25,6 +25,7 @@ git clone <this-repo-url> sagehr_ai_buddy
 ```
 
 **2. Run the install script** to link prompts into `rails-cakehr`:
+(Ideally, there should be a development folder with both the relevant repos present inside it: development/rails-cakehr and development/sagehr_ai_buddy)
 ```bash
 cd sagehr_ai_buddy
 ./install.sh
