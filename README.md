@@ -34,6 +34,48 @@ cd sagehr_ai_buddy
 
 **3. Open `rails-cakehr` in VS Code** — the prompts are live immediately.
 
+**4. Set up Jira access** so agents can fetch ticket details automatically:
+
+Generate a Jira API token at: https://id.atlassian.com/manage-profile/security/api-tokens
+
+Then create a `.env.jira` credentials file in **both** repos:
+```bash
+# In sagehr_ai_buddy
+cp ~/development/sagehr_ai_buddy/.env.jira.example ~/development/sagehr_ai_buddy/.env.jira
+
+# In rails-cakehr
+cp ~/development/sagehr_ai_buddy/.env.jira.example ~/development/rails-cakehr/.env.jira
+```
+
+Edit both `.env.jira` files and fill in your values:
+```
+JIRA_EMAIL=your.email@sage.com
+JIRA_API_TOKEN=your_api_token_here
+JIRA_BASE_URL=https://cakehr.atlassian.net
+```
+
+Test it works:
+```bash
+cd ~/development/rails-cakehr
+./scripts/jira-fetch.sh CHR-6367
+```
+
+**5. Exclude the linked files from git tracking in `rails-cakehr`**:
+
+The symlinked directories (`agents`, `prompts`, `instructions`, `scripts`) and `.env.jira` must not be tracked or committed by the `rails-cakehr` git repo. Rather than touching `rails-cakehr`'s shared `.gitignore`, add them to the **local-only exclude file** — this file works exactly like `.gitignore` but is never committed:
+
+```bash
+cat >> ~/development/rails-cakehr/.git/info/exclude << 'EOF'
+
+# sagehr_ai_buddy symlinks and Jira credentials (local only)
+.github/agents
+.github/instructions
+.github/prompts
+.env.jira
+scripts
+EOF
+```
+
 ---
 
 ## Directory Structure
