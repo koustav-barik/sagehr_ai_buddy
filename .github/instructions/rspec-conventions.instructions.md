@@ -50,15 +50,12 @@ end
 ## FactoryBot
 
 ```ruby
-# Prefer build over create when DB persistence isn't needed (faster tests)
-let(:employee) { build(:employee) }
-let(:employee) { create(:employee) }  # use when testing DB-dependent behavior
+let(:employee) { build(:employee) }   # no DB hit — prefer for unit tests
+let(:employee) { create(:employee) }  # DB-backed — use only when persistence is needed
 
-# Use traits for states
+# Use traits for named states
 let(:admin)    { create(:user, :admin) }
 let(:inactive) { create(:employee, :inactive) }
-
-# Don't create records you don't need — each create slows the suite
 ```
 
 ## Request Specs
@@ -149,12 +146,9 @@ end
 
 ## Stubs & Mocks
 
-- **Always stub** external service calls (payment gateways, email providers, Jira, S3)
-- Use `allow` for stubs (test doesn't care if called): `allow(PaymentGateway).to receive(:charge)`
-- Use `expect` for message expectations (test needs it called): `expect(mailer).to receive(:deliver_later)`
-- Use `instance_double` and `class_double` for verified doubles — they fail fast if the interface changes
-- Never rely on `VCR` cassettes for unit-level specs — stub directly
-- In controller/request specs, **stub heavy objects** rather than adding new `create` calls — every `create` is a DB round-trip
+- Use `instance_double` / `class_double` for verified doubles — they fail fast if the real interface changes
+- Never rely on VCR cassettes for unit-level specs — stub directly with `allow(...).to receive(...)`
+- In request specs, **stub heavy service objects** rather than adding extra `create` calls — every `create` is a DB round-trip
 
 ## Common Pitfalls to Avoid
 

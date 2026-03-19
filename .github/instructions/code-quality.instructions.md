@@ -1,5 +1,5 @@
 ---
-description: "Use when adding or modifying code that requires tests, linting, or security review. Covers iterative testing workflow, test coverage expectations, linting, and secure coding requirements."
+description: "Use when adding or modifying code. Covers iterative test/fix workflow, coverage expectations, linting commands, and a pre-completion security checklist."
 applyTo: ["app/**/*.rb", "spec/**/*.rb"]
 ---
 
@@ -41,17 +41,11 @@ bundle exec rubocop -a app/path/to/changed_file.rb
 - Ignore configuration errors in the linting tools themselves (not code offenses)
 - Do not disable cops inline (`# rubocop:disable`) without a documented reason
 
-## Security Requirements
+## Security Checklist (before marking done)
 
-Every code change must satisfy these requirements before it is considered complete:
-
-- **Input validation**: Validate and sanitize all user inputs at system boundaries
-- **Error handling**: Implement proper error handling that does not expose stack traces, SQL errors, or internal state to the client
-- **Parameterized queries**: Use ActiveRecord's query interface — never interpolate user input into SQL strings
-- **No hardcoded secrets**: No API keys, passwords, tokens, or sensitive configuration values in source code — use environment variables or credentials
-- **Authentication**: Verify `authenticate_user!` (or equivalent) guards every action that requires a logged-in user
-- **Authorization**: Verify `authorize` / `policy_scope` (Pundit) or equivalent guards every action that accesses or modifies user data
-- **Least privilege**: Code should only access the data and perform the operations it explicitly needs
-- **XSS protection**: Never use `html_safe` or `raw` on user-supplied content without explicit sanitization
-- **CSRF protection**: Do not disable CSRF protection on endpoints that perform state-changing operations
-- **Safe logging**: Logs must never contain passwords, tokens, SSNs, bank account numbers, or PII — use `filter_parameters` and audit log lines before committing
+- `authenticate_user!` (or subdomain auth equivalent) guards every new controller action
+- `authorize` / `policy_scope` (Pundit) called on every data-touching action
+- No raw SQL string interpolation — use ActiveRecord query interface
+- No hardcoded secrets — use `Rails.application.credentials` or `ENV[...]`
+- No `html_safe` / `raw` on user-supplied content without explicit `sanitize`
+- No PII, tokens, or passwords written to logs — verify `filter_parameters` covers any new fields

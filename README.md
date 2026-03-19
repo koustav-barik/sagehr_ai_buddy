@@ -145,23 +145,25 @@ Paste a GitHub PR URL and this agent will:
 
 Type `/` in Copilot Chat and start typing the prompt name. The prompt text appears in the chat input as **editable text** — review and customize before submitting.
 
+Prompts marked **_(preview)_** are AI-generated starting points that haven't been reviewed, tested, or customised yet — use with caution and verify the output.
+
 | Command | Use case |
 |---|---|
 | `/write-specs` | Write RSpec tests for current PR changes |
 | `/suggestion-quality` | Critical review of current PR implementation |
-| `/dev-debug` | Systematically work through a bug |
-| `/dev-refactor` | Refactor code to Rails conventions |
-| `/dev-explain` | Explain a complex piece of code |
 | `/dev-pr-description` | Draft a PR description from your changes |
-| `/dev-migration` | Plan and write a DB migration safely |
-| `/dev-seed-factory` | Generate FactoryBot factories / seed data |
-| `/qa-test-plan` | Write a feature test plan |
-| `/qa-regression` | Identify what could break from this change |
-| `/qa-bug-report` | Structure a detailed bug report |
-| `/qa-acceptance-criteria` | Review or write acceptance criteria |
-| `/code-review-checklist` | Full code review against team standards |
-| `/code-review-security` | Security-focused review |
-| `/code-review-performance` | Performance and query optimization review |
+| `/dev-debug` | _(preview)_ Systematically work through a bug |
+| `/dev-refactor` | _(preview)_ Refactor code to Rails conventions |
+| `/dev-explain` | _(preview)_ Explain a complex piece of code |
+| `/dev-migration` | _(preview)_ Plan and write a DB migration safely |
+| `/dev-seed-factory` | _(preview)_ Generate FactoryBot factories / seed data |
+| `/qa-test-plan` | _(preview)_ Write a feature test plan |
+| `/qa-regression` | _(preview)_ Identify what could break from this change |
+| `/qa-bug-report` | _(preview)_ Structure a detailed bug report |
+| `/qa-acceptance-criteria` | _(preview)_ Review or write acceptance criteria |
+| `/code-review-checklist` | _(preview)_ Full code review against team standards |
+| `/code-review-security` | _(preview)_ Security-focused review |
+| `/code-review-performance` | _(preview)_ Performance and query optimization review |
 
 ---
 
