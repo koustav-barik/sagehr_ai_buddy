@@ -41,36 +41,34 @@ Before writing a single line:
 3. Find 2–3 existing specs of the same type (model spec, request spec, etc.) to match style
 4. Check for FactoryBot factories in `spec/factories/` that you can reuse or extend
 
-### Step 3 — Brainstorm ALL Test Cases
-For each piece of code, think through:
+### Step 3 — Produce a Test Case Inventory First
 
-**Happy path(s):**
-- The primary success scenario(s)
+**Before writing a single line of spec code**, output a complete test case inventory. Present it as a checklist and wait for confirmation (or proceed if the user has already approved the plan).
 
-**Edge cases & boundary conditions:**
-- Empty input, nil values, zero, empty arrays/strings
-- Maximum/minimum values
-- First record vs. subsequent records
+Format:
+```
+## Test Case Inventory: [ClassName / endpoint]
 
-**Authorization:**
-- Who is allowed (correct role/permission)
-- Who is NOT allowed (wrong role, different company/tenant, unauthenticated)
+### Positive (happy path)
+- [ ] [describe what succeeds and what the observable outcome is]
 
-**Validation failures:**
-- Each required field missing
-- Format violations
-- Uniqueness violations
+### Negative (failure / rejection)
+- [ ] [describe what input or state causes a failure and what the response/error is]
 
-**Error conditions:**
-- Database errors, transaction rollbacks
-- External service failures (stub them)
-- Concurrent modification
+### Authorization
+- [ ] [authenticated user with correct role → succeeds]
+- [ ] [unauthenticated → 401]
+- [ ] [wrong company/tenant → 403 or record not found]
+- [ ] [insufficient role → 403]
 
-**Side effects to verify:**
-- Emails delivered (or not delivered)
-- Background jobs enqueued with correct arguments
-- Other records created/updated/deleted as expected
-- Audit logs written
+### Edge Cases
+- [ ] [nil / empty input, boundary values, concurrent calls, idempotency]
+
+### Side Effects
+- [ ] [emails sent/not sent, jobs enqueued, associated records created/updated]
+```
+
+Only proceed to Step 4 once the inventory is complete.
 
 ### Step 4 — Write the Specs
 
@@ -80,7 +78,9 @@ Adhere to the following guidelines when writing or updating specs. Always match 
 
 #### 4a. RSpec Style Guide Compliance
 
-Follow the [RSpec Style Guide](https://github.com/rubocop/rspec-style-guide), particularly the **Layout** section:
+Follow the [RSpec Style Guide](https://github.com/rubocop/rspec-style-guide) and the [Ruby Style Guide](https://github.com/rubocop/ruby-style-guide). Project-specific conventions below take precedence where they differ.
+
+Key layout rules:
 
 - **Block ordering**: Always use `subject` → `let`/`let!` → `before`/`after` → `it` blocks — in this order
 - **Empty lines**: One empty line after `let`/`subject` blocks and between `describe`/`context` blocks
@@ -89,6 +89,29 @@ Follow the [RSpec Style Guide](https://github.com/rubocop/rspec-style-guide), pa
   - `describe` for methods: `describe '#method_name'` or `describe '.class_method'`
   - `context` for states: always starts with "when", "with", "without", or "given"
   - `it` statements: descriptive present tense, no "should" — e.g. `it 'creates a task and sends notification'`
+
+#### No Inline Variable Assignment in `it` Blocks
+
+All test data setup belongs in `let`, `let!`, or `before` blocks. **Never assign or instantiate variables inside an `it` block.**
+
+```ruby
+# ❌ BAD — variable created inside the example
+it 'archives the employee' do
+  employee = create(:employee)
+  employee.archive!
+  expect(employee.archived?).to be true
+end
+
+# ✅ GOOD — setup in let, example only contains the action and assertion
+let(:employee) { create(:employee) }
+
+it 'archives the employee' do
+  employee.archive!
+  expect(employee).to be_archived
+end
+```
+
+If a specific state is only needed in one context, scope the `let` inside that `context` block rather than inlining it.
 
 ---
 

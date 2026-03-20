@@ -37,7 +37,8 @@ Run linting after changes and apply auto-fixable offenses:
 bundle exec rubocop -a app/path/to/changed_file.rb
 ```
 
-- Follow the project's existing `.rubocop.yml` configuration
+- Follow the project's existing `.rubocop.yml` configuration and the [Ruby Style Guide](https://github.com/rubocop/ruby-style-guide)
+- For spec files, additionally follow the [RSpec Style Guide](https://github.com/rubocop/rspec-style-guide)
 - Ignore configuration errors in the linting tools themselves (not code offenses)
 - Do not disable cops inline (`# rubocop:disable`) without a documented reason
 

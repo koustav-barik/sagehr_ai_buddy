@@ -149,6 +149,21 @@ Produce a structured review in this format:
 
 ---
 
+### Changes Walkthrough
+
+A brief explanation of every changed file — what it does and **why** it was changed in the context of this PR. This helps reviewers understand the intent before diving into the diff.
+
+| File | Change type | What & why |
+|---|---|---|
+| `app/services/foo/bar.rb` | Modified | Added `escape_input` private method — sanitizes user-controlled text before passing to ImageMagick to prevent file injection |
+| `app/models/employee.rb` | Modified | Added `archived_at` column scope; required by the new archival service |
+| `spec/services/foo/bar_spec.rb` | Added | Unit tests for the new escaping logic; covers attack vectors and edge cases |
+| `db/migrate/20260320_add_archived_at.rb` | Added | Adds nullable `archived_at` column to `employees` — nullable first per strong_migrations pattern |
+
+_Change types: Added / Modified / Deleted / Renamed_
+
+---
+
 ### Summary
 [2–4 sentence overall assessment: Is this ready to merge? What's the biggest concern? What's well done?]
 

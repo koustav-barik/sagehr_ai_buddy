@@ -5,6 +5,8 @@ applyTo: "spec/**/*.rb"
 
 # rails-cakehr RSpec Conventions
 
+> **Style reference:** Follow the [RSpec Style Guide](https://github.com/rubocop/rspec-style-guide) for all spec files. Project-specific rules below take precedence where they differ.
+
 ## Spec Types & File Structure
 
 | Code location | Spec type | Spec location |
@@ -99,6 +101,29 @@ subject → let / let! → before / after → it
 
 One empty line after the last `let`/`subject` block. One empty line between `describe`/`context` blocks. No empty line directly after a `describe`/`context`/`it` declaration.
 
+## No Inline Assignment in `it` Blocks
+
+All test data setup must live in `let`, `let!`, or `before` blocks — **never assign variables inside an `it` block**.
+
+```ruby
+# ❌ BAD — setup inside the example
+it 'archives the employee' do
+  employee = create(:employee)
+  employee.archive!
+  expect(employee.archived?).to be true
+end
+
+# ✅ GOOD — setup in let/before, it block only contains action + expectation
+let(:employee) { create(:employee) }
+
+it 'archives the employee' do
+  employee.archive!
+  expect(employee).to be_archived
+end
+```
+
+This keeps examples short, makes shared setup reusable across contexts, and prevents hidden state dependencies between examples.
+
 ## Packing Assertions with `aggregate_failures`
 
 When multiple assertions share the same context (no variable changes, no state change needed), pack them into a single example:
@@ -143,6 +168,24 @@ shared_examples 'sub_type predicate' do |method_name, sub_type_value|
   end
 end
 ```
+
+## Brainstorm Test Cases Before Writing
+
+Before adding or editing any spec, produce a **test case inventory** as a commented list or inline plan:
+
+```
+# Test cases to cover:
+# ✓ [positive] creates the record with valid params
+# ✓ [positive] sends the notification email
+# ✓ [positive] enqueues the background job with correct args
+# – [negative] returns 422 when required field is blank
+# – [negative] returns 401 when unauthenticated
+# – [negative] returns 403 when user belongs to a different company
+# – [edge] handles nil value without raising
+# – [edge] is idempotent when called twice
+```
+
+Only start writing spec code once the full inventory is agreed. This ensures nothing is missed and gives a clear picture of what behaviours are being validated.
 
 ## Stubs & Mocks
 

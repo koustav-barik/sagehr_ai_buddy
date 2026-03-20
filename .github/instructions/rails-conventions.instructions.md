@@ -5,6 +5,8 @@ applyTo: "app/**/*.rb"
 
 # rails-cakehr Rails Conventions
 
+> **Style reference:** Follow the [Ruby Style Guide](https://github.com/rubocop/ruby-style-guide) for all Ruby code. Project-specific rules below take precedence where they differ.
+
 ## Architecture
 
 - **Fat model, thin controller** — business logic belongs in service objects or models, not controllers

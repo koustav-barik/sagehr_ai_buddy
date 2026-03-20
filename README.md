@@ -10,8 +10,8 @@ This repo holds all team AI prompts as **VS Code Copilot customization files**. 
 
 | What you get | How to invoke | File type |
 |---|---|---|
-| **Specialized AI agents** (initial-analysis, pr-code-review) | Select from the **agent mode picker** in Copilot Chat | `.agent.md` |
-| **Reusable editable prompts** (dev-*, qa-*, code-review-*, write-specs, suggestion-quality) | Type `/` in Copilot Chat → pick from the list | `.prompt.md` |
+| **Specialized AI agents** (`initial-analysis`, `jira`, `pr-code-review`, `e2e-development`) | Select from the **agent mode picker** in Copilot Chat | `.agent.md` |
+| **Reusable editable prompts** (`dev-*`, `qa-*`, `code-review-*`, `write-specs`, `suggestion-quality`, `dev-pr-description`) | Type `/` in Copilot Chat → pick from the list | `.prompt.md` |
 | **Always-on coding conventions** (Rails, RSpec, code quality) | Auto-injected when relevant files are open | `.instructions.md` |
 
 ---
@@ -86,7 +86,8 @@ EOF
 ├── agents/
 │   ├── initial-analysis.agent.md       # Ticket → relevant code + change plan (Jira-aware)
 │   ├── pr-code-review.agent.md         # GitHub PR URL → comprehensive review
-│   └── jira.agent.md                   # Fetch Jira ticket details on demand
+│   ├── jira.agent.md                   # Fetch Jira ticket details on demand
+│   └── e2e-development.agent.md        # Ticket → implementation → specs → PR (full pipeline)
 scripts/
 │   └── jira-fetch.sh                   # curl + Python script; reads from .env.jira
 .env.jira.example                       # Credential template (copy to .env.jira)
@@ -107,9 +108,9 @@ scripts/
 │   ├── code-review-security.prompt.md
 │   └── code-review-performance.prompt.md
 └── instructions/
-    ├── rails-conventions.instructions.md
-    ├── rspec-conventions.instructions.md
-    └── code-quality.instructions.md
+    ├── rails-conventions.instructions.md   # Multi-tenancy, Pundit auth, service objects, API conventions (anchored to Ruby Style Guide)
+    ├── rspec-conventions.instructions.md   # Spec structure, FactoryBot, shared examples, no-inline-assignment rule (anchored to RSpec Style Guide)
+    └── code-quality.instructions.md        # Test/fix workflow, RuboCop linting commands, pre-merge security checklist
 install.sh                              # One-time setup per developer
 sagehr.code-workspace                  # Alternative: multi-root workspace
 ```
@@ -136,9 +137,21 @@ Fetch any Jira ticket into your Copilot session on demand:
 Paste a GitHub PR URL and this agent will:
 - Fetch the PR from GitHub and switch to that branch locally
 - Read all changed files in the PR
+- Produce a changes walkthrough table (per-file: what changed and why)
 - Perform a comprehensive architectural review covering: correctness, security, performance, testing, multi-tenancy, Rails conventions, and code quality
 - Return a structured review with 🔴 blocking issues / 🟡 improvements / 🔵 suggestions
 - Consult the project's instruction files to ensure alignment with team standards
+
+### `e2e-development`
+The full end-to-end pipeline from Jira ticket to merged-ready PR. Paste a ticket key and the agent will:
+- Fetch the Jira ticket and confirm understanding
+- Analyse the codebase and present an implementation plan for approval
+- Implement the changes file by file
+- Produce a test case inventory for approval, then write and run the specs
+- Run a self-critique (suggestion-quality pass) and ask which issues to fix
+- Create a branch (`build-CHR-XXXX-brief-description`), commit, and raise a PR with labels `Pending Review` and `Ai-generated`
+
+**Every stage has an approval gate** — the agent pauses and waits for your confirmation before proceeding.
 
 ---
 
@@ -150,9 +163,9 @@ Prompts marked **_(preview)_** are AI-generated starting points that haven't bee
 
 | Command | Use case |
 |---|---|
-| `/write-specs` | Write RSpec tests for current PR changes |
+| `/write-specs` | Write RSpec tests — outputs a test case inventory (positive, negative, auth, edge cases) for approval first, then writes and runs the specs |
 | `/suggestion-quality` | Critical review of current PR implementation |
-| `/dev-pr-description` | Draft a PR description from your changes |
+| `/dev-pr-description` | Full structured PR description — reads the diff + Jira ticket, produces title, root cause, implementation details by layer, test coverage summary, how to test, and checklist |
 | `/dev-debug` | _(preview)_ Systematically work through a bug |
 | `/dev-refactor` | _(preview)_ Refactor code to Rails conventions |
 | `/dev-explain` | _(preview)_ Explain a complex piece of code |
