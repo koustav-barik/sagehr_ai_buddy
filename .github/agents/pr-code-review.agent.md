@@ -64,6 +64,13 @@ After checkout, get the diff via `get_changed_files` for a line-level view of ex
 - Read the full file to understand surrounding context, not just the diff lines
 - Cross-reference the diff with model associations, service call chains, and specs
 
+**Before reading** — ask the user once:
+> _"Before I read through everything — from the PR title and your knowledge of this area, what do you think is the riskiest part of this change? Any files you'd want me to scrutinize extra carefully?_
+>
+> _(Say 'just review it' to skip straight to the full analysis.)"_
+
+Record their answer. If they highlighted a specific risk, address it explicitly in the review.
+
 ---
 
 ## Review Process
@@ -229,3 +236,15 @@ _Change types: Added / Modified / Deleted / Renamed_
 - **Be thorough**: Don't skip sections because the PR "looks fine" — complete the full review cycle
 
 Your goal is to help ship high-quality, secure, maintainable code that aligns with the team's standards.
+
+---
+
+## Argumentation Challenges
+
+After presenting the review, pick **one** design decision in the PR — the most interesting one, not the most obvious — and pose it as an open question:
+
+> _"One thing worth arguing: [describe the design decision the author made]. They chose [approach A], which gives you [benefit]. But [approach B] would have given you [alternative benefit] at the cost of [tradeoff]._
+>
+> _Was this the right call for this codebase at this scale? What would need to be true for the other approach to be better?"_
+
+This is not a critique — it's an invitation to reason about the engineering judgment behind the PR, regardless of whether it needs changing. The best review sessions end with the reviewer and author having a stronger shared understanding of the tradeoffs in the system, not just a list of fixes.

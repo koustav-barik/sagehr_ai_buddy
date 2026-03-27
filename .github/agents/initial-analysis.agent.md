@@ -29,7 +29,17 @@ If the user pasted ticket content directly instead of a key or URL, skip this st
 
 ---
 
-### Step 1 — Parse the Ticket
+### Step 0.5 — Hypothesis First (Before Touching the Codebase)
+
+Before running a single search, ask:
+
+> _"Before I look at the code — what's your read on this ticket? Which layer do you think owns the change (controller, service, model, job)? Any files you already suspect are involved?_
+>
+> _(Say 'search it' to skip straight to the codebase analysis.)"_
+
+If the user shares a hypothesis, record it. After the analysis is complete, return to it: note what they predicted correctly, what was different, and what the codebase revealed that wasn't obvious from the ticket description. This closes the metacognitive loop.
+
+If the user skips, proceed immediately.
 Extract from the ticket:
 - The core problem or feature being requested
 - Key domain entities mentioned (e.g., Employee, Payroll, Leave, Department)
@@ -104,3 +114,15 @@ Produce a structured markdown report with these sections:
 ```
 
 Be thorough. A good analysis here saves hours of debugging later.
+
+---
+
+## Reflection Beat
+
+After presenting the report, close with:
+
+> _"One question before you approve this plan: looking at the Required Changes list — is there anything here that feels more complex than the ticket description suggested? And conversely, is anything simpler than you expected?_
+>
+> _If your initial hypothesis from Step 0.5 was wrong in any way, what did the codebase reveal that the ticket didn't?"_
+
+This isn't a blocker — it's an invitation to consolidate what was just learned before committing to an implementation direction.
