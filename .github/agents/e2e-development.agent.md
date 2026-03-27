@@ -49,7 +49,11 @@ Determine and record:
 - **Brief slug**: 3–5 word kebab-case summary of what the ticket is (e.g. `fix-onboarding-trigger-payroll-customers`)
 
 > ⏸️ **GATE 1** — Show the ticket details and the values above, then ask:
-> _"Does this look correct? Should I proceed with the codebase analysis?"_
+> _"Does this look correct?_
+>
+> _Before I search the codebase: what's your mental model of how this feature currently works? Which layer do you expect the change to live in — a controller, a service object, a model callback, a background job? Any files you already suspect are involved?_
+>
+> _(Say 'go ahead' to skip straight to the analysis.)"_
 
 ---
 
@@ -87,7 +91,13 @@ Follow the same process as the `initial-analysis` agent:
 ```
 
 > ⏸️ **GATE 2** — Present the full plan, then ask:
-> _"Does this implementation plan look correct? Any files to add, remove, or change before I start coding?"_
+> _"Before you approve — a few questions to pressure-test this plan:_
+>
+> _1. Is there a simpler approach we haven't considered? What's the minimum change that would satisfy the acceptance criteria?_
+> _2. Which file in the 'Modify' list carries the most risk — and why?_
+> _3. If this deployment happens and something goes wrong within the first hour, what's the most likely failure mode?_
+>
+> _(If you're happy with the plan as-is, just say 'approve' and I'll start coding.)"_
 
 Wait for approval. Incorporate any adjustments the user requests before continuing.
 
@@ -113,7 +123,11 @@ bundle exec rubocop -a <changed_files>
 Fix any auto-correctable offenses. Show any remaining offenses that need manual attention.
 
 > ⏸️ **GATE 3** — Show a summary of every file changed and what was done, then ask:
-> _"Here are all the implementation changes. Do you want to review them before I write the specs?"_
+> _"Here are all the implementation changes._
+>
+> _Before I move to specs — what edge cases do YOU think the tests should catch that I might miss? What's the scenario that would embarrass us in production if it slipped through?_
+>
+> _(Say 'write specs' to proceed, with or without your input.)"_
 
 ---
 
@@ -146,7 +160,11 @@ Before writing any spec code, produce a full test case inventory for every chang
 ```
 
 > ⏸️ **GATE 4a** — Present the full test inventory, then ask:
-> _"Does this test coverage plan look complete? Any cases to add or remove?"_
+> _"Does this test coverage plan look complete?_
+>
+> _One question: for the Authorization section — if you removed every `authorize` call in the changed code, which of these test cases would catch it and which ones would silently pass? Trace it through._
+>
+> _(Add cases, remove cases, or say 'looks good' to proceed.)"_
 
 Wait for approval before writing spec code.
 
@@ -168,7 +186,11 @@ COVERAGE=false bundle exec rspec <spec_files>
 Fix any failures iteratively. Show the final passing run output.
 
 > ⏸️ **GATE 4b** — Show the written specs and passing test run output, then ask:
-> _"Specs are passing. Want to review them before I do the quality critique?"_
+> _"Specs are passing._
+>
+> _Before I run my critique: what do YOU think is the weakest part of these specs? Is there a case where a test passes today but would still pass even if the implementation had a subtle bug?_
+>
+> _(Say 'critique' to move on.)"_
 
 ---
 
@@ -208,7 +230,11 @@ Format each issue as:
 ```
 
 > ⏸️ **GATE 5** — Present all critique items, then ask:
-> _"Here are my findings. Which of these would you like me to address before raising the PR? (Reply with item numbers, 'all', or 'none')"_
+> _"Here are my findings. Before you decide what to fix:_
+>
+> _Which of these issues reflects a pattern you've seen (or written) before in this codebase? This is worth naming — repeated anti-patterns usually point to a missing abstraction or a convention that hasn't been written down yet._
+>
+> _(Reply with item numbers to fix, 'all', or 'none'. Add a pattern observation if one comes to mind.)"_
 
 Implement only the items the user approves. Re-run specs after any fixes to confirm still passing.
 
