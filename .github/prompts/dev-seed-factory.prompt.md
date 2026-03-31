@@ -3,7 +3,7 @@ description: "Generate FactoryBot factories and seed data for Rails models. Usef
 name: "dev-seed-factory"
 argument-hint: "Name the model you need a factory for, or describe the seed data scenario..."
 agent: "agent"
-tools: [read, search, edit]
+tools: [read, search, edit, runCommands, todo]
 ---
 
 I need to create or update FactoryBot factories and/or seed data for:

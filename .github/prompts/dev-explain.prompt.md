@@ -3,7 +3,7 @@ description: "Explain a complex or unfamiliar piece of code in plain English. Us
 name: "dev-explain"
 argument-hint: "Select the code you want explained, or describe what you're trying to understand..."
 agent: "agent"
-tools: [read, search]
+tools: [read, search, runCommands]
 ---
 
 Please explain the following code clearly enough that a developer unfamiliar with this area could understand it and work with it confidently.
@@ -17,6 +17,8 @@ Please explain the following code clearly enough that a developer unfamiliar wit
 ---
 
 Your explanation should cover:
+
+0. **Find a codebase parallel** — search the repo for another file that uses the same pattern or concept. Show me: _"Here's another place in our codebase that does the same thing: `path/to/file.rb` — comparing the two will help you see the pattern."_ If this is a concept I've never seen before (XHR, callbacks, Pundit, concerns), point to our simplest existing example first.
 
 1. **What this code does** — plain English summary in 2–4 sentences. No jargon.
 
@@ -34,3 +36,5 @@ Your explanation should cover:
 6. **What's unusual or tricky about it** — things a developer might misunderstand or accidentally break
 
 7. **A concrete example** — if helpful, trace through the code with real example inputs to show what happens at each step
+
+8. **The one pitfall to avoid** — name the most common mistake a beginner makes with this pattern, so you know what to watch for next time you encounter it

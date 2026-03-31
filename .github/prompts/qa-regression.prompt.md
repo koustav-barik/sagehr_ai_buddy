@@ -3,7 +3,7 @@ description: "Identify what existing features or functionality could regress fro
 name: "qa-regression"
 argument-hint: "Describe the change being made (PR link, ticket, or summary of what changed)..."
 agent: "agent"
-tools: [read, search]
+tools: [read, search, runCommands, todo]
 ---
 
 I need to identify regression risks for the following change:

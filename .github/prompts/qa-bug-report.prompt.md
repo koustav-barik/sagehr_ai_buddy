@@ -3,7 +3,7 @@ description: "Write a clear, detailed bug report with all the information develo
 name: "qa-bug-report"
 argument-hint: "Describe what you observed — what happened and what you expected..."
 agent: "agent"
-tools: [read, search]
+tools: [read, search, runCommands, todo]
 ---
 
 I need to write a detailed bug report for the following issue:

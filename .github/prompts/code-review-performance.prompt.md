@@ -3,7 +3,7 @@ description: "Performance-focused code review. Analyzes N+1 queries, missing ind
 name: "code-review-performance"
 argument-hint: "Paste the code or describe what needs a performance review..."
 agent: "agent"
-tools: [read, search]
+tools: [read, search, edit, runCommands, todo]
 ---
 
 Perform a performance-focused review of the following code:
@@ -22,7 +22,8 @@ Perform a performance-focused review of the following code:
 Analyze the code for every performance concern below. For each finding, include:
 - The exact code location
 - What happens at scale (10x the current data volume)
-- The fix
+- The fix — **anchored to an existing place in our codebase where we already handle this correctly** (e.g., "We already eager-load associations in `app/controllers/api/v1/...` — follow the same `includes(...)` pattern here")
+- A plain-English explanation of why this matters, as a senior dev would explain to a junior
 
 ---
 

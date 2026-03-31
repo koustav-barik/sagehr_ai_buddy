@@ -3,7 +3,7 @@ description: "Review, critique, or write acceptance criteria for a feature. Iden
 name: "qa-acceptance-criteria"
 argument-hint: "Paste the ticket, user story, or draft acceptance criteria you want reviewed..."
 agent: "agent"
-tools: [read, search]
+tools: [read, search, runCommands, todo]
 ---
 
 I need help with acceptance criteria for the following:

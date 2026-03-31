@@ -3,7 +3,7 @@ description: "Plan and write a safe database migration for Rails. Covers schema 
 name: "dev-migration"
 argument-hint: "Describe the schema change you need (add column, rename, add index, data backfill, etc.)..."
 agent: "agent"
-tools: [read, search, edit]
+tools: [read, search, edit, runCommands, todo]
 ---
 
 I need to write a database migration for the following change:
@@ -17,6 +17,9 @@ I need to write a database migration for the following change:
 ---
 
 Please help me plan and write this migration safely:
+
+### Step 0 — Find a similar migration already in our repo
+Search `db/migrate/` for a migration that does the same type of change (same column type, similar constraint, same table structure). Show me: _"Here's a migration we already have that does something similar: `db/migrate/20250101_...rb` — we'll follow the same pattern."_ This helps me learn what safe migrations look like in our specific codebase, not just in theory.
 
 ### Step 1 — Understand the current state
 Read the relevant model(s) and existing migrations to understand:
@@ -60,3 +63,14 @@ List any changes needed to the model:
 - Add/update validations
 - Add/update scopes (e.g., `scope :active, -> { where(archived_at: nil) }`)
 - Update `attr_accessor` or strong parameters if needed
+
+### Step 5 — Apply & verify
+Use the `edit` tool to write the migration file, then run:
+```bash
+bundle exec rails db:migrate
+bundle exec rails db:rollback
+bundle exec rails db:migrate
+```
+to verify the migration is reversible. Run any affected specs with `runCommands` to confirm nothing broke.
+
+> **Teaching note:** Explain each decision in plain English as you go — why this column is nullable, why the index is added here, what would happen if someone ran this on a production table with millions of rows. Point to the most similar existing migration from Step 0 throughout.

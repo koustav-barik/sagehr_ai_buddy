@@ -3,7 +3,7 @@ description: "Create a structured test plan for a feature or change. Lists all s
 name: "qa-test-plan"
 argument-hint: "Describe the feature, ticket, or change you need a test plan for..."
 agent: "agent"
-tools: [read, search]
+tools: [read, search, runCommands, todo]
 ---
 
 I need a test plan for the following feature or change:
