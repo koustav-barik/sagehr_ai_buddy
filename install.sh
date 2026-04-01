@@ -7,11 +7,11 @@
 #
 # What it does:
 #   Creates symlinks inside the target repo's .github/ directory pointing back
-#   to this repo's agents/, prompts/, and instructions/ directories. Because
-#   they are symlinks, any git pull here is immediately reflected there.
+#   to this repo's agents/, prompts/, instructions/, and learnings/ directories.
+#   Because they are symlinks, any git pull here is immediately reflected there.
 #
 # To uninstall:
-#   cd <target-repo>/.github && rm agents prompts instructions
+#   cd <target-repo>/.github && rm agents prompts instructions learnings
 #   cd <target-repo> && rm scripts
 
 set -e
@@ -36,8 +36,8 @@ mkdir -p "$TARGET/.github"
 LINKED=0
 SKIPPED=0
 
-# Link .github subdirectories (agents, prompts, instructions)
-for dir in agents prompts instructions; do
+# Link .github subdirectories (agents, prompts, instructions, learnings)
+for dir in agents prompts instructions learnings; do
   SOURCE_PATH="$SCRIPT_DIR/.github/$dir"
   TARGET_PATH="$TARGET/.github/$dir"
 

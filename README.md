@@ -63,7 +63,7 @@ cd ~/development/rails-cakehr
 
 **5. Exclude the linked files from git tracking in `rails-cakehr`**:
 
-The symlinked directories (`agents`, `prompts`, `instructions`, `scripts`) and `.env.jira` must not be tracked or committed by the `rails-cakehr` git repo. Rather than touching `rails-cakehr`'s shared `.gitignore`, add them to the **local-only exclude file** — this file works exactly like `.gitignore` but is never committed:
+The symlinked directories (`agents`, `prompts`, `instructions`, `learnings`, `scripts`) and `.env.jira` must not be tracked or committed by the `rails-cakehr` git repo. Rather than touching `rails-cakehr`'s shared `.gitignore`, add them to the **local-only exclude file** — this file works exactly like `.gitignore` but is never committed:
 
 ```bash
 cat >> ~/development/rails-cakehr/.git/info/exclude << 'EOF'
@@ -72,6 +72,7 @@ cat >> ~/development/rails-cakehr/.git/info/exclude << 'EOF'
 .github/agents
 .github/instructions
 .github/prompts
+.github/learnings
 .env.jira
 scripts
 EOF
@@ -91,6 +92,7 @@ EOF
 ├── prompts/
 │   ├── dev-write-specs.prompt.md       # Write RSpec tests — produces test case inventory for approval, then writes and runs specs
 │   ├── dev-quality-critique.prompt.md  # Critical review of changed code — scoped to PR diff or staged/unstaged changes only
+│   ├── dev-address-review-comments.prompt.md # Work through open PR review comments — evaluates each one, explains validity and implications, waits for approval before changing code
 │   ├── dev-pr-description.prompt.md    # Full structured PR description — diff + Jira ticket → title, root cause, implementation details, test coverage, how to test
 │   ├── dev-debug.prompt.md             # Systematically work through a bug — reproduces, isolates, and fixes with explanation
 │   ├── dev-refactor.prompt.md          # Refactor code to Rails conventions — thin controllers, service objects, Pundit, idiomatic Ruby
@@ -104,7 +106,10 @@ EOF
 │   ├── code-review-checklist.prompt.md  # Full code review against team standards — correctness, security, performance, conventions
 │   ├── code-review-security.prompt.md   # Security-focused review — OWASP Top 10, auth boundaries, injection, data leakage
 │   └── code-review-performance.prompt.md # Performance and query optimisation review — N+1, missing indexes, unbounded loads, caching
+├── learnings/
+│   └── journal.md                          # Your personal learning journal — paste anything here; agents read and apply it automatically
 └── instructions/
+    ├── learnings.instructions.md           # Tells every agent to read journal.md and apply relevant lessons silently
     ├── rails-conventions.instructions.md   # Multi-tenancy, Pundit auth, service objects, API conventions (anchored to Ruby Style Guide)
     ├── rspec-conventions.instructions.md   # Spec structure, FactoryBot, shared examples, no-inline-assignment rule (anchored to RSpec Style Guide)
     └── code-quality.instructions.md        # Test/fix workflow, RuboCop linting commands, pre-merge security checklist
@@ -172,6 +177,7 @@ Prompts marked **_(preview)_** are AI-generated starting points that haven't bee
 |---|---|
 | `/dev-write-specs` | Write RSpec tests — outputs a test case inventory (positive, negative, auth, edge cases) for approval first, then writes and runs the specs |
 | `/dev-quality-critique` | Critical review of changed code — scoped to the active PR diff or staged/unstaged changes only; pre-existing untouched code is never flagged |
+| `/dev-address-review-comments` | Work through open PR review comments (Copilot or team) — evaluates each one, explains whether it is valid and why like a senior dev teaching, then waits for your decision before touching any code |
 | `/dev-pr-description` | Full structured PR description — reads the diff + Jira ticket, produces title, root cause, implementation details by layer, test coverage summary, how to test, and checklist |
 | `/dev-debug` | _(preview)_ Systematically work through a bug |
 | `/dev-refactor` | _(preview)_ Refactor code to Rails conventions |
@@ -226,6 +232,29 @@ git pull
 Because the install uses symlinks, changes are instantly available in `rails-cakehr` — no reinstall needed.
 
 ---
+
+## Learner Journal
+
+The learner journal is a plain text file at `.github/learnings/journal.md`. It is your personal coding memory — paste anything into it and every agent will silently read and apply relevant entries to future work, without you having to update any prompt or instruction. 
+Like we humans learn new concepts and retain in memory, this serves as the tool's memory which can be used in future sessions without explicitly updating any existing instructions, prompts or agents.
+
+**How to add learnings:**
+
+Open `.github/learnings/journal.md` and paste. No format required. Examples of what to add:
+- A concept explained in a code review that clicked for you
+- A mistake you want to avoid repeating
+- A Rails pattern, security rule, or RSpec convention you want to internalise
+- A plain English note from a debugging session
+
+Dates, headings, and bullet points are optional. The AI is designed to extract meaning from unstructured prose.
+
+**How it works:**
+
+`learnings.instructions.md` has `applyTo: "**"` so it is injected into every agent session. It instructs the agent to read `journal.md` at the start of each task and silently apply any relevant entries. When a past lesson applies directly, the agent surfaces the connection briefly so you can see your knowledge being used — reinforcing the pattern rather than re-explaining it from scratch.
+
+**Automatic capture from review sessions:**
+
+At the end of every `/dev-address-review-comments` session, the agent identifies the most teachable moments and offers to append them to the journal as ready-to-paste entries. You choose which ones to keep.
 
 ## Contributing a New Prompt
 
