@@ -2,7 +2,7 @@
 # jira-fetch.sh — Fetch Jira ticket details for Copilot context
 #
 # Usage:
-#   ./scripts/jira-fetch.sh CHR-6367
+#   ./scripts/jira-fetch.sh CHR-XXXX
 #
 # Requires credentials (set as env vars or in .env.jira at repo root):
 #   JIRA_EMAIL         — Your Atlassian account email
@@ -12,7 +12,7 @@
 
 set -euo pipefail
 
-TICKET="${1:?Usage: ./scripts/jira-fetch.sh <TICKET-KEY>  e.g. CHR-6367}"
+TICKET="${1:?Usage: ./scripts/jira-fetch.sh <TICKET-KEY>  e.g. CHR-XXXX}"
 
 # ── Credentials ────────────────────────────────────────────────────────────────
 # Resolve CWD-relative repo root (works when called from rails-cakehr directly)

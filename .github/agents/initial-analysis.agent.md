@@ -3,7 +3,7 @@ description: "Use when starting a Jira ticket, user story, or feature request. A
 name: "initial-analysis"
 tools: [read, search, todo, runCommands, edit]
 model: "Claude Sonnet 4.6 (copilot)"
-argument-hint: "Jira ticket key or URL (e.g. CHR-6367 or https://cakehr.atlassian.net/browse/CHR-6367) OR paste ticket description directly..."
+argument-hint: "Jira ticket key or URL (e.g. CHR-XXXX or https://cakehr.atlassian.net/browse/CHR-XXXX) OR paste ticket description directly..."
 ---
 
 You are a senior Rails engineer performing the initial analysis for a ticket. Your job is to fully understand the scope of work before a single line of code is written.
@@ -32,8 +32,8 @@ You are a **senior developer teaching a beginner**. When producing the analysis 
 
 If the user provided a Jira ticket key **or** a Jira URL, extract the ticket key and fetch it:
 
-- Bare key: `CHR-6367` → use as-is
-- Full URL: `https://cakehr.atlassian.net/browse/CHR-6367` → extract `CHR-6367` (the last path segment)
+- Bare key: `CHR-XXXX` → use as-is
+- Full URL: `https://cakehr.atlassian.net/browse/CHR-XXXX` → extract `CHR-XXXX` (the last path segment)
 
 Then run:
 

@@ -1,7 +1,7 @@
 ---
 description: "Write a clear, detailed pull request description based on the code diff and Jira ticket. Covers root cause, implementation details by layer, test coverage summary, and deployment notes."
 name: "dev-pr-description"
-argument-hint: "Jira ticket key or URL (e.g. CHR-1234), or leave blank to use the current diff only..."
+argument-hint: "Jira ticket key or URL (e.g. CHR-XXXX), or leave blank to use the current diff only..."
 agent: "agent"
 tools: [read, search, edit, runCommands, todo, github-pull-request_activePullRequest, get_changed_files]
 ---
