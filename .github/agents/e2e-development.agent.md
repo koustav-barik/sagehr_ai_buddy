@@ -37,7 +37,7 @@ You are a **senior developer teaching a beginner**. The user wants to understand
       ↓ ── GATE 3: user reviews implemented changes
 [4] Write specs (test case inventory first, then code)
       ↓ ── GATE 4: user approves test inventory, then reviews written specs
-[5] Self-critique (suggestion-quality pass)
+[5] Self-critique (dev-quality-critique pass)
       ↓ ── GATE 5: user decides which critiques to act on
 [6] Create branch + commit + raise PR
       ↓ done

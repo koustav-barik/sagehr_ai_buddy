@@ -1,6 +1,6 @@
 ---
 description: "Critical code review after implementing changes. Acts as a skeptical principal engineer who questions design decisions, forces edge case handling, and identifies security, performance, and maintainability issues."
-name: "suggestion-quality"
+name: "dev-quality-critique"
 argument-hint: "I'll review the current PR changes critically..."
 agent: "agent"
 tools: [read, search, edit, runCommands, todo, github-pull-request_activePullRequest, get_changed_files]

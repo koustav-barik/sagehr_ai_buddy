@@ -11,7 +11,7 @@ This repo holds all team AI prompts as **VS Code Copilot customization files**. 
 | What you get | How to invoke | File type |
 |---|---|---|
 | **Specialized AI agents** (`initial-analysis`, `jira`, `pr-code-review`, `e2e-development`) | Select from the **agent mode picker** in Copilot Chat | `.agent.md` |
-| **Reusable editable prompts** (`dev-*`, `qa-*`, `code-review-*`, `write-specs`, `suggestion-quality`, `dev-pr-description`) | Type `/` in Copilot Chat → pick from the list | `.prompt.md` |
+| **Reusable editable prompts** (`dev-*`, `qa-*`, `code-review-*`, `dev-pr-description`) | Type `/` in Copilot Chat → pick from the list | `.prompt.md` |
 | **Always-on coding conventions** (Rails, RSpec, code quality) | Auto-injected when relevant files are open | `.instructions.md` |
 
 ---
@@ -92,8 +92,8 @@ scripts/
 │   └── jira-fetch.sh                   # curl + Python script; reads from .env.jira
 .env.jira.example                       # Credential template (copy to .env.jira)
 ├── prompts/
-│   ├── write-specs.prompt.md           # Write RSpec tests for PR changes
-│   ├── suggestion-quality.prompt.md    # Critical review of PR changes
+│   ├── dev-write-specs.prompt.md        # Write RSpec tests for PR changes
+│   ├── dev-quality-critique.prompt.md  # Critical review of PR changes
 │   ├── dev-debug.prompt.md
 │   ├── dev-refactor.prompt.md
 │   ├── dev-explain.prompt.md
@@ -148,7 +148,7 @@ The full end-to-end pipeline from Jira ticket to merged-ready PR. Paste a ticket
 - Analyse the codebase and present an implementation plan for approval
 - Implement the changes file by file
 - Produce a test case inventory for approval, then write and run the specs
-- Run a self-critique (suggestion-quality pass) and ask which issues to fix
+- Run a self-critique (dev-quality-critique pass) and ask which issues to fix
 - Create a branch (`build-CHR-XXXX-brief-description`), commit, and raise a PR with labels `Pending Review` and `Ai-generated`
 
 **Every stage has an approval gate** — the agent pauses and waits for your confirmation before proceeding.
@@ -163,8 +163,8 @@ Prompts marked **_(preview)_** are AI-generated starting points that haven't bee
 
 | Command | Use case |
 |---|---|
-| `/write-specs` | Write RSpec tests — outputs a test case inventory (positive, negative, auth, edge cases) for approval first, then writes and runs the specs |
-| `/suggestion-quality` | Critical review of current PR implementation |
+| `/dev-write-specs` | Write RSpec tests — outputs a test case inventory (positive, negative, auth, edge cases) for approval first, then writes and runs the specs |
+| `/dev-quality-critique` | Critical review of current PR implementation |
 | `/dev-pr-description` | Full structured PR description — reads the diff + Jira ticket, produces title, root cause, implementation details by layer, test coverage summary, how to test, and checklist |
 | `/dev-debug` | _(preview)_ Systematically work through a bug |
 | `/dev-refactor` | _(preview)_ Refactor code to Rails conventions |

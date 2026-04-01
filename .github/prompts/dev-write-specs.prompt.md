@@ -1,6 +1,6 @@
 ---
 description: "Write or update RSpec tests for implemented changes. Brainstorms all test scenarios and writes production-ready specs following project conventions, including authorization, edge cases, and error conditions."
-name: "write-specs"
+name: "dev-write-specs"
 argument-hint: "I'll write specs for the current PR changes..."
 agent: "agent"
 tools: [read, search, edit, runCommands, todo, github-pull-request_activePullRequest, get_changed_files]
