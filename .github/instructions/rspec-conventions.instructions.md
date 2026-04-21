@@ -5,6 +5,8 @@ applyTo: "spec/**/*.rb"
 
 # rails-cakehr RSpec Conventions
 
+**Related**: [code-quality](code-quality.instructions.md) · [rails-conventions](rails-conventions.instructions.md) · [write-rspec playbook](../playbooks/write-rspec/PLAYBOOK.md)
+
 > **Style reference:** Follow the [RSpec Style Guide](https://github.com/rubocop/rspec-style-guide) for all spec files. Project-specific rules below take precedence where they differ.
 
 ## Spec Types & File Structure
@@ -61,6 +63,8 @@ let(:inactive) { create(:employee, :inactive) }
 ```
 
 ## Request Specs
+
+Every request spec must include company-scoped context — **tenant scoping is MANDATORY**:
 
 ```ruby
 RSpec.describe "POST /api/v1/employees", type: :request do
@@ -192,6 +196,20 @@ Only start writing spec code once the full inventory is agreed. This ensures not
 - Use `instance_double` / `class_double` for verified doubles — they fail fast if the real interface changes
 - Never rely on VCR cassettes for unit-level specs — stub directly with `allow(...).to receive(...)`
 - In request specs, **stub heavy service objects** rather than adding extra `create` calls — every `create` is a DB round-trip
+
+### `allow_any_instance_of` is FORBIDDEN
+
+Never use `allow_any_instance_of`. It was designed for legacy code where you cannot inject dependencies. When you already have a reference to the specific object, always stub on that object directly:
+
+```ruby
+# ❌ WRONG — affects all Company instances, hides which one is stubbed
+allow_any_instance_of(Company).to receive(:feature_enabled?).and_return(true)
+
+# ✅ CORRECT — explicit about exactly which instance is stubbed
+allow(company).to receive(:feature_enabled?).and_return(true)
+```
+
+If you think you need `allow_any_instance_of`, it means the code under test does not expose a seam for injection. Fix the design rather than reaching for this stub.
 
 ## Common Pitfalls to Avoid
 

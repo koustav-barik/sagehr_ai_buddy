@@ -6,13 +6,27 @@ A shared AI prompt library for the SageHR engineering team — developers, QA, a
 
 ## How It Works
 
-This repo holds all team AI prompts as **VS Code Copilot customization files**. Once installed into `rails-cakehr`, they surface in two places:
+This repo holds all team AI configuration as **VS Code Copilot customization files**. Once installed into `rails-cakehr`, they surface in several places:
 
 | What you get | How to invoke | File type |
 |---|---|---|
 | **Specialized AI agents** (`initial-analysis`, `jira`, `pr-code-review`, `e2e-development`) | Select from the **agent mode picker** in Copilot Chat | `.agent.md` |
-| **Reusable editable prompts** (`dev-*`, `qa-*`, `code-review-*`) | Type `/` in Copilot Chat → pick from the list | `.prompt.md` |
-| **Always-on coding conventions** (Rails, RSpec, code quality) | Auto-injected when relevant files are open | `.instructions.md` |
+| **Reusable slash prompts** (`dev-*`, `qa-*`, `code-review-*`) | Type `/` in Copilot Chat → pick from the list | `.prompt.md` |
+| **Always-on coding conventions** (Rails, RSpec, code quality, AI workflow) | Auto-injected when relevant files are open | `.instructions.md` |
+| **Playbooks** (analyse-codebase, write-rspec, review-pr, quality-critique) | Referenced by agents; available locally via symlink | `PLAYBOOK.md` |
+
+> **`skills/` is reserved** for future official Copilot skills that may eventually be promoted to `rails-cakehr` directly. Do not add internal procedures there — use `playbooks/` instead.
+
+---
+
+## Agent Decision Tree
+
+| I want to… | Use this agent |
+|---|---|
+| Read and understand a Jira ticket | `jira` |
+| Analyse a ticket and produce an implementation plan | `initial-analysis` |
+| Implement a ticket end-to-end with approval gates | `e2e-development` |
+| Review a pull request | `pr-code-review` |
 
 ---
 
@@ -61,22 +75,28 @@ cd ~/development/rails-cakehr
 ./scripts/jira-fetch.sh CHR-XXXX
 ```
 
-**5. Exclude the linked files from git tracking in `rails-cakehr`**:
+**5. Exclude the AI artefact symlinks from git tracking in `rails-cakehr`**:
 
-The symlinked directories (`agents`, `prompts`, `instructions`, `learnings`, `scripts`) and `.env.jira` must not be tracked or committed by the `rails-cakehr` git repo. Rather than touching `rails-cakehr`'s shared `.gitignore`, add them to the **local-only exclude file** — this file works exactly like `.gitignore` but is never committed:
+The `install.sh` script creates symlinks inside `rails-cakehr` pointing back to this repo. These symlinked directories and the Jira credentials file must never be committed by the `rails-cakehr` repo. Rather than modifying `rails-cakehr`’s shared `.gitignore` (which would affect the whole team), add them to the **local-only exclude file** — this works exactly like `.gitignore` but is machine-local and is never committed or shared with other contributors.
+
+Run this once after installing:
 
 ```bash
 cat >> ~/development/rails-cakehr/.git/info/exclude << 'EOF'
 
-# sagehr_ai_buddy symlinks and Jira credentials (local only)
+# sagehr_ai_buddy symlinks and Jira credentials
+# These are local-only — never commit to rails-cakehr
 .github/agents
 .github/instructions
 .github/prompts
 .github/learnings
+.github/playbooks
 .env.jira
 scripts
 EOF
 ```
+
+> **Note on `skills/`:** This directory is intentionally absent from the exclude list. It is reserved for future official Copilot skills that will be committed to `rails-cakehr` directly when ready. Do not add internal team procedures there — use `playbooks/` instead.
 
 ---
 
@@ -85,40 +105,65 @@ EOF
 ```
 .github/
 ├── agents/
-│   ├── initial-analysis.agent.md       # Ticket → finds all relevant files, maps logic flow, produces implementation plan
-│   ├── pr-code-review.agent.md         # PR URL or branch → comprehensive review
-│   ├── jira.agent.md                   # Fetch Jira ticket details on demand; supports read / analyse / plan modes
-│   └── e2e-development.agent.md        # Ticket → ticket branch → implementation → specs → quality critique → PR (full pipeline)
+│   ├── initial-analysis.agent.md       # Ticket → codebase analysis → structured implementation plan
+│   ├── jira.agent.md                   # Fetch Jira ticket; supports read / analyse / plan modes
+│   ├── pr-code-review.agent.md         # PR URL or branch → comprehensive teaching review
+│   └── e2e-development.agent.md        # Ticket → branch → implementation → specs → critique → PR
+├── playbooks/                          # SageHR-internal step-by-step procedures (private, gitignored in rails-cakehr)
+│   ├── analyse-codebase/PLAYBOOK.md    # File discovery + logic tracing procedure (used by initial-analysis, e2e-development, jira)
+│   ├── write-rspec/PLAYBOOK.md         # Test inventory → spec writing procedure (used by dev-write-specs, e2e-development)
+│   ├── review-pr/PLAYBOOK.md           # Checklist-driven PR review procedure (used by pr-code-review)
+│   └── quality-critique/PLAYBOOK.md    # Pre-PR self-critique procedure (used by dev-quality-critique, e2e-development)
+├── skills/                             # RESERVED — future official Copilot skills (do not add internal procedures here)
+├── plans/
+│   └── plan-template.md                # Template for per-ticket implementation plans (.github/plans/<TICKET-KEY>.md)
 ├── prompts/
-│   ├── dev-write-specs.prompt.md       # Write RSpec tests — produces test case inventory for approval, then writes and runs specs
-│   ├── dev-quality-critique.prompt.md  # Critical review of changed code — scoped to PR diff or staged/unstaged changes only
-│   ├── dev-address-review-comments.prompt.md # Work through open PR review comments — evaluates each one, explains validity and implications, waits for approval before changing code
-│   ├── dev-pr-description.prompt.md    # Full structured PR description — diff + Jira ticket → title, root cause, implementation details, test coverage, how to test
-│   ├── dev-debug.prompt.md             # Systematically work through a bug — reproduces, isolates, and fixes with explanation
-│   ├── dev-refactor.prompt.md          # Refactor code to Rails conventions — thin controllers, service objects, Pundit, idiomatic Ruby
-│   ├── dev-explain.prompt.md           # Explain a complex piece of code — plain English walkthrough for any method, class, or flow
-│   ├── dev-migration.prompt.md         # Plan and write a DB migration safely — strong_migrations patterns, reversibility, index strategy
-│   ├── dev-seed-factory.prompt.md      # Generate FactoryBot factories and seed data — traits, associations, realistic values
-│   ├── qa-test-plan.prompt.md          # Write a feature test plan — scenarios, preconditions, expected outcomes, edge cases
-│   ├── qa-regression.prompt.md         # Identify what could break from this change — dependency mapping, risk areas, suggested regression checks
-│   ├── qa-bug-report.prompt.md         # Structure a detailed bug report — steps to reproduce, expected vs actual, environment, logs
-│   ├── qa-acceptance-criteria.prompt.md # Review or write acceptance criteria — Given/When/Then format, covers happy path and edge cases
-│   ├── code-review-checklist.prompt.md  # Full code review against team standards — correctness, security, performance, conventions
-│   ├── code-review-security.prompt.md   # Security-focused review — OWASP Top 10, auth boundaries, injection, data leakage
-│   └── code-review-performance.prompt.md # Performance and query optimisation review — N+1, missing indexes, unbounded loads, caching
-├── learnings/
-│   └── journal.md                          # Your personal learning journal — paste anything here; agents read and apply it automatically
-└── instructions/
-    ├── learnings.instructions.md           # Tells every agent to read journal.md and apply relevant lessons silently
-    ├── rails-conventions.instructions.md   # Multi-tenancy, Pundit auth, service objects, API conventions (anchored to Ruby Style Guide)
-    ├── rspec-conventions.instructions.md   # Spec structure, FactoryBot, shared examples, no-inline-assignment rule (anchored to RSpec Style Guide)
-    └── code-quality.instructions.md        # Test/fix workflow, RuboCop linting commands, pre-merge security checklist
+│   ├── dev-write-specs.prompt.md       # Write RSpec tests — inventory for approval, then writes and runs specs
+│   ├── dev-quality-critique.prompt.md  # Critical pre-PR review — scoped to diff only
+│   ├── dev-address-review-comments.prompt.md # Work through open PR review comments
+│   ├── dev-pr-description.prompt.md    # Full structured PR description
+│   ├── dev-debug.prompt.md             # Systematically reproduce, isolate, and fix a bug
+│   ├── dev-refactor.prompt.md          # Refactor to Rails conventions — behaviour unchanged
+│   ├── dev-explain.prompt.md           # Plain English walkthrough of any method, class, or flow
+│   ├── dev-migration.prompt.md         # Safe DB migration — strong_migrations patterns, reversibility
+│   ├── dev-seed-factory.prompt.md      # FactoryBot factories and seed data
+│   ├── qa-test-plan.prompt.md          # Feature test plan — scenarios, preconditions, edge cases
+│   ├── qa-regression.prompt.md         # What could break — dependency mapping and risk areas
+│   ├── qa-bug-report.prompt.md         # Structured bug report
+│   ├── qa-acceptance-criteria.prompt.md # Given/When/Then acceptance criteria
+│   ├── code-review-checklist.prompt.md  # Full review — correctness, security, performance, conventions
+│   ├── code-review-security.prompt.md   # Security-focused review — OWASP Top 10, auth, injection
+│   └── code-review-performance.prompt.md # Performance review — N+1, indexes, unbounded loads
+├── instructions/
+│   ├── ai-workflow.instructions.md         # AI autonomy rules, plan-first rule, agent/playbook/prompt reference (applyTo: **)
+│   ├── learnings.instructions.md           # Loads journal.md; applies lessons silently (applyTo: **)
+│   ├── rails-conventions.instructions.md   # Multi-tenancy, Pundit, service objects, performance (applyTo: app/**/*.rb)
+│   ├── rspec-conventions.instructions.md   # Spec structure, FactoryBot, tenant scoping, stub rules (applyTo: spec/**/*.rb)
+│   └── code-quality.instructions.md        # Test/fix loop, RuboCop, security checklist (applyTo: app/**/*.rb, spec/**/*.rb)
+└── learnings/
+    └── journal.md                          # Team learning journal — paste lessons from reviews, bugs, and feedback
 scripts/
-└── jira-fetch.sh                       # curl + Python script to fetch Jira ticket details; reads credentials from .env.jira
-.env.jira.example                       # Credential template — copy to .env.jira and fill in email + API token
-install.sh                              # One-time setup — symlinks agents, prompts, instructions, and scripts into rails-cakehr
+└── jira-fetch.sh                       # Fetches Jira ticket details; reads credentials from .env.jira
+.env.jira.example                       # Credential template — copy to .env.jira and fill in
+install.sh                              # One-time setup — symlinks all directories into rails-cakehr
 sagehr.code-workspace                   # Alternative to install.sh — multi-root workspace pointing at both repos
 ```
+
+---
+
+## Contributing
+
+### Adding a new slash prompt
+Add a `.prompt.md` file to `.github/prompts/`. It will be available as a `/` command in Copilot Chat immediately after a VS Code reload. Update the Prompt Reference table in `.github/instructions/ai-workflow.instructions.md`.
+
+### Adding a new agent
+Add a `.agent.md` file to `.github/agents/`. Follow the structure in existing agents: frontmatter → Persona → Responsibilities → Rules → Boundaries → Escalation → workflow sections. Update the Agent Reference table in `ai-workflow.instructions.md`.
+
+### Adding a new playbook
+Add a `PLAYBOOK.md` inside a new subdirectory under `.github/playbooks/`. Reference it from the agent or prompt that uses it. Update the Playbook Reference table in `ai-workflow.instructions.md`.
+
+### Adding to the learning journal
+Open `.github/learnings/journal.md` and paste an entry. Use the format in `learnings.instructions.md` (Category, Context, Lesson, Anti-pattern). The AI will automatically apply relevant entries to future tasks.
 
 ---
 

@@ -20,3 +20,28 @@ This closes the loop between what was learned in a past review and what is being
 - Force-apply learnings that are not genuinely relevant to the current task
 - Treat entries as hard rules — they are lessons and observations, not constraints
 - Mention the journal exists unless the user asks about it
+
+---
+
+## Journal Entry Format
+
+When adding a new entry to the journal, use this format for consistency. Dates and headings are optional but help with scanning:
+
+```
+### [Date or context — e.g. "Apr 2026 — CHR-XXXX PR review"]
+**Category**: [N+1 | security | callbacks | Rails conventions | testing | front-end | service objects | migrations]
+**Context**: [One sentence: what were you working on when you learned this?]
+**Lesson**: [The principle or correct behaviour — 1–3 sentences]
+**Anti-pattern**: [What not to do, and why it causes a problem]
+```
+
+**Categories** (use one per entry to help matching):
+- `N+1` — query performance and eager loading patterns
+- `security` — auth, tenant scoping, input sanitization, XSS, SQL injection
+- `callbacks` — Rails callback misuse and service object alternatives
+- `Rails conventions` — idioms, naming, architecture patterns
+- `testing` — RSpec conventions, factories, stub patterns
+- `front-end` — React, Vue, TypeScript, Carbon patterns
+- `service objects` — `.call` pattern, single responsibility, error handling
+- `migrations` — strong_migrations patterns, safe column changes, index additions
+

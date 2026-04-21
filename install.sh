@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# install.sh — Links sagehr_ai_buddy prompts into a target Rails repo
+# install.sh — Links sagehr_ai_buddy artefacts into a target Rails repo
 #
 # Usage:
 #   ./install.sh                        # installs into ../rails-cakehr (default)
@@ -7,11 +7,19 @@
 #
 # What it does:
 #   Creates symlinks inside the target repo's .github/ directory pointing back
-#   to this repo's agents/, prompts/, instructions/, and learnings/ directories.
-#   Because they are symlinks, any git pull here is immediately reflected there.
+#   to this repo's agents/, prompts/, instructions/, learnings/, and playbooks/
+#   directories. Because they are symlinks, any git pull here is immediately
+#   reflected there.
+#
+#   NOTE: skills/ is intentionally NOT symlinked. It is reserved for future
+#   official Copilot skills that may be promoted to rails-cakehr directly.
+#
+#   NOTE: playbooks/ contains SageHR-internal procedures and must be excluded
+#   from git tracking in rails-cakehr. The installer prints instructions for
+#   this after linking.
 #
 # To uninstall:
-#   cd <target-repo>/.github && rm agents prompts instructions learnings
+#   cd <target-repo>/.github && rm agents prompts instructions learnings playbooks
 #   cd <target-repo> && rm scripts
 
 set -e
@@ -36,8 +44,9 @@ mkdir -p "$TARGET/.github"
 LINKED=0
 SKIPPED=0
 
-# Link .github subdirectories (agents, prompts, instructions, learnings)
-for dir in agents prompts instructions learnings; do
+# Link .github subdirectories (agents, prompts, instructions, learnings, playbooks)
+# NOTE: skills/ is intentionally excluded — reserved for future official Copilot skills
+for dir in agents prompts instructions learnings playbooks; do
   SOURCE_PATH="$SCRIPT_DIR/.github/$dir"
   TARGET_PATH="$TARGET/.github/$dir"
 
@@ -80,3 +89,27 @@ echo ""
 echo "Reload VS Code in $TARGET to see the new agents and prompts:"
 echo "  - Type / in Copilot Chat to browse prompts"
 echo "  - Select an agent from the mode picker (Ask/Agent/Plan dropdown)"
+echo ""
+echo "-----------------------------------------------------------------------"
+echo " IMPORTANT: Exclude symlinks from git tracking in $TARGET"
+echo "-----------------------------------------------------------------------"
+echo ""
+echo " The symlinked directories and .env.jira must not be committed by"
+echo " the rails-cakehr repo. Run this once to add them to the local-only"
+echo " git exclude file (never committed, never shared):"
+echo ""
+echo "   cat >> $TARGET/.git/info/exclude << 'EOF'"
+echo ""
+echo "   # sagehr_ai_buddy symlinks and Jira credentials (local only)"
+echo "   .github/agents"
+echo "   .github/instructions"
+echo "   .github/prompts"
+echo "   .github/learnings"
+echo "   .github/playbooks"
+echo "   .env.jira"
+echo "   scripts"
+echo "   EOF"
+echo ""
+echo " NOTE: .github/skills is intentionally not excluded — it is reserved"
+echo " for future official skills and will be added deliberately when ready."
+echo "-----------------------------------------------------------------------"
