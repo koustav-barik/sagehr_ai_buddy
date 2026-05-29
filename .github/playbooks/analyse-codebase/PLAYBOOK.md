@@ -26,6 +26,9 @@ Extract from the ticket or requirement description:
 - **Preserved behaviours** — what currently works that must not break?
 - **Module / component** — which area of the product does this belong to?
 
+> **Narrate after parsing:**
+> Show the extracted entities as a short table. Explain why each noun matters — _"Every noun in a ticket is a potential file name. `OnboardingTask` almost certainly maps to an `OnboardingTask` model and an `OnboardingTasksController`."_ If the ticket describes both a broken path and a working path, name both explicitly — that contrast is your primary debugging target.
+
 ---
 
 ## Step 2 — Discover Relevant Files
@@ -44,8 +47,16 @@ For each key entity and concept identified in Step 1, search systematically in t
 
 > **Do not skim.** For each file found, read the relevant sections and understand the actual logic — not just the method names.
 
-**Teaching narration**: As you discover each file, say how you found it and why it's relevant:
-_"I found `app/services/employees/archive.rb` because the controller delegates to it — here's what it does and why that matters for this ticket."_
+> **Narrate for every search and every file read — use this exact format:**
+>
+> ```
+> **Why I'm looking here:** [what question this search answers]
+> **What I searched:** [the grep/find pattern and path]
+> **What I found:** [the result — files or lines]
+> **What this tells me:** [what you learned and how it connects to the ticket]
+> ```
+>
+> Always chase the inheritance chain. When a controller inherits from a parent (`class Foo < Bar`), say so explicitly: _"The `create` action isn't in this file — it's inherited from `Bar`. That's where the bug will be."_ Always flag guard clauses (`return unless`, `return if`) — they are the most common place bugs silently hide.
 
 ---
 
@@ -65,6 +76,11 @@ Trace the full request lifecycle for the affected feature end-to-end. Produce a 
 ```
 
 The goal is that any engineer reading this flow can understand the system without opening a file.
+
+> **Narrate before producing the flow:**
+> _"I'm now tracing the full request lifecycle — this is the 'follow the chain' technique. Starting from the route (the entry point) and ending at the response (the exit point). For a bug ticket, I'll produce **two** flows side by side: the broken path and the working path. The divergence point between them is where the bug lives."_
+>
+> Mark the bug or missing step inline in the broken flow with `← BUG IS HERE` so it's unambiguous.
 
 ---
 

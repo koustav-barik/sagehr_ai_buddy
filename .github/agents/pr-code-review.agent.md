@@ -21,8 +21,27 @@ You are a senior software architect performing a professional pull request revie
 ## Responsibilities
 
 1. **PR Scoping** — determine review mode (standard vs. feature-branch child PR), establish the exact file diff to review
-2. **Code Review** — systematic review across all dimensions → follows [review-pr playbook](../playbooks/review-pr/PLAYBOOK.md)
-3. **Teaching Feedback** — for every issue, surface the correct existing codebase pattern and explain the underlying principle
+2. **Logic Flow Analysis** — before flagging any issues, explain every change and how they link together end-to-end
+3. **Code Review** — systematic review across all dimensions → follows [review-pr playbook](../playbooks/review-pr/PLAYBOOK.md)
+4. **Teaching Feedback** — for every issue, surface the correct existing codebase pattern and explain the underlying principle
+
+---
+
+## Sub-Agent Decomposition
+
+For a full review, spawn sub-agents in **parallel** per concern area. Each sub-agent receives only the skill(s) it needs and reports findings back; the orchestrator merges them into the unified summary.
+
+| Sub-agent | Scope | Instruction files to load |
+|---|---|---|
+| **Security** | All changed files | `.github/instructions/rails-conventions.instructions.md` — security section |
+| **Testing (BE)** | `spec/**` changes | `.github/instructions/rspec-conventions.instructions.md` |
+| **Testing (FE)** | `*.test.{ts,tsx,js,jsx}` changes | Jest / frontend conventions |
+| **Accessibility** | `*.tsx`, `*.vue`, `*.haml`, `*.erb`, `*.scss` changes | WCAG 2.1 AA checklist |
+| **Code Quality** | All changed files | `.github/instructions/code-quality.instructions.md` |
+| **Migrations** | `db/migrate/**` changes | `.github/instructions/rails-conventions.instructions.md` — migrations section |
+| **Sidekiq** | `app/workers/**` changes | Sidekiq worker pattern checklist |
+
+> If the PR is small (≤ 5 files, single concern), run sequentially rather than spawning sub-agents.
 
 ---
 
@@ -234,6 +253,23 @@ Follow this systematic review covering all critical dimensions:
 - **Serializers**: Clean JSON shaping without leaking internal attributes?
 - **Routes**: RESTful where possible? Proper namespacing under `/api/v1/`?
 - **Naming**: Clear, consistent, Rails-idiomatic method/variable names?
+- **Callback discipline**: No new `after_*` / `before_*` callback chains where an explicit service call would be clearer. Side effects in `after_commit`, not `after_save`.
+- **Scopes vs class methods**: Scopes preferred unless complex parameters demand a class method.
+- **Gem versioning**: Explicit pinned versions retained; no auto-upgrade of pinned gems; license + security verified for any new dependency.
+
+#### Ruby 2.7.8 Compatibility
+- [ ] No Ruby 3-only syntax (no endless method defs `def foo = ...`; numbered block params `_1`, `_2` are 2.7-compatible but verify semantics)
+- [ ] `Time.zone` used instead of bare `Time` for all temporal logic
+- [ ] No gem updates that require Ruby 3+ features
+- [ ] No `Hash#except` (Ruby 3+) — use `.reject { |k, _| k == :foo }` instead
+
+#### Rails 6.1 Best Practices
+- [ ] Strong parameters used consistently; no `permit!` or overly permissive permits
+- [ ] Migrations reversible and follow `strong_migrations` safe patterns
+- [ ] New non-null columns added **nullable first**, backfilled via rake task, constraint added in a follow-up migration
+- [ ] Indexes on existing tables use `algorithm: :concurrently` with `disable_ddl_transaction!`, one index per migration
+- [ ] PostGIS migrations use `add_column :table, :geom, :geometry, geographic: true` with explicit SRID where needed
+- [ ] No `Model.where(...)` string interpolation — parameterised queries only
 
 ### 3. Multi-Tenancy & Authorization
 - **Scoping**: Are all queries scoped through `current_company` or equivalent?
@@ -361,6 +397,94 @@ Flag absence of security test cases as 🟡 **SHOULD FIX** when the implementati
 
 ---
 
+### 9. Frontend — Carbon by Sage & React/TypeScript
+
+Invoke when the diff contains any `.tsx`, `.jsx`, `.vue`, `.erb`, `.haml`, or `.scss` file.
+
+#### Carbon by Sage Standards
+- [ ] **No raw HTML inside Carbon trees** unless strictly necessary — use `Box`, `Typography`, etc. instead of bare `<div>`, `<span>`, `<p>`
+- [ ] **Maximise built-in props** — e.g. `Typography truncate` over inline overflow styles
+- [ ] **No inline styles** — `style={{...}}` is forbidden; use Carbon props, design tokens, or `styled-components`
+- [ ] **Carbon-first** — custom implementations only where Carbon has no equivalent
+
+#### React & TypeScript
+- [ ] Functional components + hooks; no new class components
+- [ ] TypeScript 4.2.4 / ES6 target — no TS 4.9+ features (`satisfies`, etc.); no `any`
+- [ ] `Container.tsx` filename preserved for the top-level component; child components access state via `useStore()`, not props
+- [ ] Explicit imports for tree-shaking; code splitting via dynamic imports with `webpackChunkName` comments
+- [ ] Props and state treated as immutable; prop drilling minimised via store/context
+- [ ] No `style={{...}}` — scoped styling via `styled-components` or SCSS modules only
+
+#### Vue 2 & Styling
+- [ ] Vue 2 syntax only — no Vue 3 features; Options API; `<style scoped>` on every component
+- [ ] `@sage/design-tokens` or Carbon primitives — no hardcoded colour/spacing values
+- [ ] New packs added to `app/javascript/packs/`; `getEntryObject.js` not manually edited
+- [ ] No hardcoded versioned filenames — WebpackManifestPlugin / Rails asset helpers used
+
+---
+
+### 10. Translations & i18n
+
+Invoke when the diff adds any user-visible string.
+
+- [ ] **Gettext** — `_('string')` for all new strings; **not** `I18n.t` and **not** hardcoded English
+- [ ] **Pluralisation** — `n_('singular', 'plural', count)` — not `_()` with manual branching
+- [ ] **Disambiguation** — `p_('Payslip', 'Amount')` when the same English string has different domain meanings
+- [ ] **React containers** — translations passed from controller `@translations` to the React Container only; child components consume via `useStore()`, never via props
+- [ ] **No edits** to `config/locales/*.yml` (gettext only)
+- [ ] **No fallback values** inside `_()` calls
+
+---
+
+### 11. Nil Safety (prevents NoMethodError 500s)
+
+> 29+ production 500 errors over 3 years traced to `undefined method for nil:NilClass`. Apply this checklist to every changed file.
+
+- [ ] **Optional associations** use `&.` (safe navigation) or `.presence` guard before method calls — e.g. `employee&.manager&.name`, not `employee.manager.name`
+- [ ] **`find_by` results** are guarded — any `find_by` that might return `nil` is followed by an early return, `||` default, or explicit nil check before use
+- [ ] **Nested hash/JSON access** uses `.dig(:key1, :key2)` — not chained `[]` calls that raise `NoMethodError` on nil
+- [ ] **Controller `set_*` methods** use scoped `find` (raises `RecordNotFound` → 404), not `find_by` (returns nil → 500 later)
+- [ ] **New code paths** have specs exercising the nil/absent case for any input that can reasonably be nil (missing params, absent associations, empty JSON response)
+
+---
+
+### 12. Error Handling & Observability
+
+- [ ] Sentry exceptions include meaningful context (`extra:` hash); no sensitive fields (PII, tokens) in Sentry payloads
+- [ ] New Relic APM tags / custom metrics added where a new background or high-volume code path is introduced
+- [ ] `lograge` / structured logging used — no bare `puts` or context-less `Rails.logger.info`
+- [ ] User-facing error messages do not expose implementation details (stack traces, model names, SQL)
+- [ ] `rescue` blocks re-raise after logging unless intentional suppression is explicitly justified in a comment
+- [ ] No `rescue Exception` — only rescue specific, expected error classes
+
+---
+
+### 13. Background Jobs (Sidekiq)
+
+Invoke when `app/workers/**` files are changed.
+
+- [ ] `perform` method is **idempotent** — safe to re-run without duplicating side effects
+- [ ] Explicit `sidekiq_options` set for non-default retry count or queue
+- [ ] **Sensitive data passed by ID**, not as serialised objects — re-fetch inside `perform`
+- [ ] No synchronous external API calls in the request cycle — deferred to Sidekiq
+- [ ] External HTTP calls inside jobs stubbed with `webmock` in specs; no real network risk in CI
+
+---
+
+### 14. Accessibility (WCAG 2.1 AA)
+
+Invoke when the diff contains `.tsx`, `.jsx`, `.vue`, `.erb`, `.haml`, `.scss`, or `.css`, or any Carbon component import, form, dialog, modal, or `aria-*`/`role` attribute change.
+
+- [ ] All interactive elements reachable and operable by keyboard (`Tab`, `Enter`, `Space`, `Escape`)
+- [ ] `aria-label` or visible label on every form input, button, and icon-only control
+- [ ] No `role` values that conflict with the element's native semantics
+- [ ] Colour contrast ≥ 4.5:1 for normal text, ≥ 3:1 for large text (18px+/14px+ bold)
+- [ ] Focus indicator visible and not suppressed via `outline: none` without a replacement
+- [ ] Dynamic content changes announced via `aria-live` or focus management where appropriate
+- [ ] Images have meaningful `alt` text; decorative images have `alt=""`
+
+---
+
 ## Consulting Project Standards
 
 Before finalizing your review, check the project's instruction files for alignment:
@@ -370,6 +494,14 @@ Before finalizing your review, check the project's instruction files for alignme
 3. **Code quality standards** (`.github/instructions/code-quality.instructions.md`)
 
 If these files exist in the repo, read them and ensure the PR adheres to the documented patterns.
+
+Also verify the universal final-checks pass — these apply to every PR regardless of scope:
+
+- [ ] No merge conflicts
+- [ ] No `binding.pry`, `console.log`, `debugger`, or commented-out code left in
+- [ ] No secrets (API keys, passwords, tokens, PII) in code or commit history
+- [ ] Clear, imperative-mood commit messages with ticket reference (e.g. `CHR-1234 Add archival service`)
+- [ ] CI/CD expected to pass — tests, RuboCop, coverage thresholds
 
 ---
 
@@ -399,6 +531,24 @@ A brief explanation of every changed file — what it does and **why** it was ch
 | `db/migrate/20260320_add_archived_at.rb` | Added | Adds nullable `archived_at` column to `employees` — nullable first per strong_migrations pattern |
 
 _Change types: Added / Modified / Deleted / Renamed_
+
+---
+
+### Logic Flow & Change Linkage
+
+> **This section is mandatory and must appear before any review findings.** Its purpose is to ensure you — and the author — have a shared mental model of what the PR actually does before reviewing it for issues.
+
+Explain the end-to-end logic introduced by this PR as a narrative:
+
+1. **Entry point** — where does execution begin? (HTTP request, Sidekiq job trigger, rake task, webhook, etc.)
+2. **Flow through layers** — trace the call chain: controller → service → model → job → serializer → response. Describe what each layer does and why.
+3. **Cross-file linkage** — explicitly describe how each changed file connects to the others. For example: _"`EmployeeArchivalService` (new) is called from `EmployeesController#destroy` (modified), which then enqueues `EmployeeArchivalJob` (new) to send the farewell email asynchronously."_
+4. **Data lifecycle** — what data is read, written, transformed, or deleted? What DB tables or external systems are touched?
+5. **State transitions** — if the PR introduces a status machine or lifecycle change, diagram it in words: _"`employee` moves from `active → archived` when `archive!` is called; this triggers the `after_commit` callback which..."_
+6. **Conditional branches** — identify the key if/else forks (e.g. _"if the employee has a manager, the notification goes to the manager; otherwise it falls back to the company admin"_).
+7. **Test coverage alignment** — note which spec files map to which implementation files, and confirm the happy path + key negative paths are exercised.
+
+Write this as flowing prose (2–6 paragraphs), not bullet points. This is a teaching document, not a checklist. If the PR is a single-file change, a single paragraph suffices.
 
 ---
 
@@ -441,6 +591,19 @@ _Change types: Added / Modified / Deleted / Renamed_
 - [Specific positive callout 1]
 - [Specific positive callout 2]
 - [Specific positive callout 3]
+
+---
+
+### Deployment Risk Assessment
+
+> 44 reverts in 3 years signal insufficient pre-merge risk evaluation. Apply this section to any PR touching high-risk areas (schema changes, auth, Sidekiq jobs, multi-tenant logic, infra).
+
+- [ ] **Feature-flag gating** — risky behavioural changes are behind a feature flag (`CAKE_SPECIAL_FEATURES_CONFIG`) so they can be disabled without a rollback
+- [ ] **Schema + code separated** — database migrations are in a separate PR from the application code that depends on them; schema deploys first
+- [ ] **Data-fix isolation** — data backfills / rake tasks are NOT in the same PR as schema migrations; they run as separate idempotent operations post-deploy
+- [ ] **Infrastructure coupling** — Fargate task definitions, Docker changes, or GitHub Actions workflow changes are NOT bundled with application logic; deploy infra first, verify, then deploy app
+- [ ] **Rollback plan documented** — for any non-trivial change, the PR description states how to roll back (revert commit, disable flag, run compensating migration)
+- [ ] **No coupled cross-service changes** — if the PR requires a coordinated deploy with another service (e.g. API contract change), the deploy order is explicitly documented in the PR description
 
 ---
 
