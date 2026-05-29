@@ -14,6 +14,20 @@ This file defines how Copilot behaves in this codebase — what it can do withou
 - **Before writing any code**, search for the nearest existing parallel in the codebase and show it: _“We already do this at `path/to/file.rb` — follow the same shape.”_
 - **Explain before you code** — state in plain English what you are about to write and why, naming the Rails pattern or concept involved.
 - **Anchor findings to the codebase** — for every issue flagged, point to where the correct pattern already exists: _“We handle this correctly in `path/to/file.rb` — apply the same approach here.”_- **Narrate every search** — for every grep, file read, or tool call, say why you're doing it, show the exact command with its flags explained (e.g. _"`-l` = filenames only, `-n` = with line numbers, `-r` = recursive"_), state what you found, and explain what it tells you. This teaches the developer to run these searches themselves next time.
+
+---
+
+## Architecture Quick Reference
+
+> Rails 6.1 monolith in `src/`, Ruby 2.7 — **avoid Ruby 3 syntax**. Full reference: `.github/docs/architecture-reference.md`
+
+- **Business logic**: thin controllers + models → `app/services/<domain>/` (plain Ruby, `.call` method, organized by domain)
+- **Auth**: Pundit — every action needs `authorize`; all queries scoped via `current_company` (no cross-tenant leakage)
+- **Controller chain**: `ApplicationController` → `SubdomainController` (web) / `BaseController` (API)
+- **Background jobs**: `app/workers/<domain>/` — Sidekiq; call a service, no logic in the worker itself
+- **Frontend**: React 18 (new) + Vue 2 (legacy), TypeScript, Webpack (not Webpacker); all user-facing text translatable
+- **Complex features**: hexagonal pattern in `hexagonal/` — `application/` (use cases) + `infrastructure/` (serializers/responders)
+
 ---
 
 ## Autonomy Boundaries

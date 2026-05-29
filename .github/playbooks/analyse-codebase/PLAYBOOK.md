@@ -18,6 +18,8 @@ This playbook is **read-only**. It produces a plan. No code is written.
 
 ## Step 1 — Parse the Ticket
 
+> **Architecture context**: Orient yourself against `.github/docs/architecture-reference.md` — the folder map, controller hierarchy, and service pattern will tell you where to look before you start searching.
+
 Extract from the ticket or requirement description:
 
 - **Core problem or feature** — one sentence: what is being added, changed, or fixed?
