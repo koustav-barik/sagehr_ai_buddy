@@ -33,15 +33,6 @@ Analyze the code for every performance concern below. For each finding, include:
 - Check if `belongs_to` associations are called inside iteration without eager loading
 - Are counter caches available but unused?
 
-Example of an N+1:
-```ruby
-# BAD — 1 query for companies + N queries for employees
-Company.all.each { |c| puts c.employees.count }
-
-# GOOD
-Company.includes(:employees).all.each { |c| puts c.employees.size }
-```
-
 ## 2. Missing Database Indexes
 - For every new column introduced: will it be used in `WHERE`, `ORDER BY`, `GROUP BY`, or a `JOIN`? If yes, it needs an index.
 - For every `find_by` or `where(column: value)`: is `column` indexed?

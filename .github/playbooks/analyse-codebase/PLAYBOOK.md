@@ -149,12 +149,3 @@ Output the full structured plan in this format:
 [ordered steps — safest sequence to make changes without breaking existing behaviour]
 ```
 
----
-
-## Teaching Note
-
-For **every file and pattern** you identify, point to a similar one already in the codebase:
-
-> _"We have a nearly identical service at `app/services/payroll/archive.rb` — the new one should follow the same shape: one `.call` method, `company:` passed explicitly, Sentry rescue wrapping."_
-
-This anchors the plan in what is already proven to work in this codebase, and teaches the developer how to navigate it.

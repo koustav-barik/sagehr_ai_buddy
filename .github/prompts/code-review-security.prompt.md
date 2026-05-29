@@ -18,8 +18,6 @@ Perform a security-focused review of the following code:
 
 Analyze for every category below. For each finding, state the exact risk and how it could be exploited.
 
-> **Teaching note:** For every vulnerability found, point to where we already handle that security concern correctly in the codebase: _"Here's how we protect against this in `path/to/file.rb` — apply the same pattern."_ Explain the attack vector in plain English — as a senior dev would explain OWASP issues to someone who hasn't seen them before.
-
 ---
 
 ## 1. Broken Access Control

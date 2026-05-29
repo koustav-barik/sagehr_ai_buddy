@@ -43,8 +43,7 @@ Invoke this playbook once the PR diff scope has been established and the changed
 - **Callbacks**: Are they used sparingly? No cross-model side effects in callbacks — those belong in service objects.
 - **Enums**: Defined with a hash (not index position): `enum status: { active: "active" }` ✅
 
-**Teaching requirement**: For every issue found, point to where the correct pattern already exists:
-> _"We handle this correctly in `app/services/employees/archive.rb` — the fix here should follow that shape."_
+**Teaching requirement**: For every issue found, point to where the correct pattern already exists.
 
 ---
 
@@ -145,12 +144,3 @@ All external service calls must be stubbed. Any un-stubbed HTTP client or mailer
 - **Magic values**: Hardcoded strings/numbers extracted to constants?
 - **Dead code**: Any leftover commented code or unused methods?
 
----
-
-## Teaching Requirement (applies to all dimensions)
-
-For **every issue raised**, follow this format:
-1. Point to where the correct pattern already exists in the codebase
-2. Explain why this is a problem in production terms (not just "it violates a rule")
-3. Name the underlying principle (N+1 query, cross-tenant leakage, mass assignment, etc.)
-4. Describe a concrete fix anchored to the existing codebase pattern

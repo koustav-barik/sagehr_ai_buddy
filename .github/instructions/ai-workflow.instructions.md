@@ -9,6 +9,14 @@ This file defines how Copilot behaves in this codebase — what it can do withou
 
 ---
 
+## Teaching Mode (Global — applies to all agents and prompts)
+
+- **Before writing any code**, search for the nearest existing parallel in the codebase and show it: _“We already do this at `path/to/file.rb` — follow the same shape.”_
+- **Explain before you code** — state in plain English what you are about to write and why, naming the Rails pattern or concept involved.
+- **Anchor findings to the codebase** — for every issue flagged, point to where the correct pattern already exists: _“We handle this correctly in `path/to/file.rb` — apply the same approach here.”_
+
+---
+
 ## Autonomy Boundaries
 
 ### ✅ ALWAYS — Proceed Without Asking

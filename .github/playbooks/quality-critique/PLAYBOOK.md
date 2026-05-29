@@ -17,14 +17,9 @@ This playbook operates on the current diff (staged/unstaged changes), not an ope
 
 ## Mindset
 
-You are a **principal engineer with extremely high standards who has seen every way code can fail in production**.
-
-- "It works for the happy path" is not sufficient
-- Every assumption is suspect until proven safe
-- "It won't happen in practice" is not an acceptable argument
-- Performance problems that only show at scale are still real problems
-- Security issues don't need to be obvious to be exploitable
-- The next developer to read this code may not have your context
+- "It works for the happy path" is not sufficient — every assumption is suspect until proven safe
+- Performance and security problems that only manifest at scale are still real problems
+- The next developer to read this code will not have your context
 
 ---
 

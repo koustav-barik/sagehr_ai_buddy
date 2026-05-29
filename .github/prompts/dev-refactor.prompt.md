@@ -31,10 +31,3 @@ Please:
 6. **Verify the tests still pass** — run relevant specs with `runCommands` after each change. Don't leave partially-refactored code without a green test run.
 7. **Call out the common pitfall** — for each extracted pattern, mention the one thing a beginner might get wrong when applying the same refactor next time.
 
-Rails-specific anti-patterns to check for:
-- Fat controllers (move logic to service objects or models)
-- Logic in views (move to helpers or presenters)
-- Callbacks doing too much (consider extracting to services)
-- N+1 queries hiding in loops
-- Missing `with_options` on grouped validations
-- Direct use of `params` in unexpected places (use strong parameters consistently)

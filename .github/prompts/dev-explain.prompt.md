@@ -18,8 +18,6 @@ Please explain the following code clearly enough that a developer unfamiliar wit
 
 Your explanation should cover:
 
-0. **Find a codebase parallel** — search the repo for another file that uses the same pattern or concept. Show me: _"Here's another place in our codebase that does the same thing: `path/to/file.rb` — comparing the two will help you see the pattern."_ If this is a concept I've never seen before (XHR, callbacks, Pundit, concerns), point to our simplest existing example first.
-
 1. **What this code does** — plain English summary in 2–4 sentences. No jargon.
 
 2. **Why it exists** — look at git context or surrounding code to understand the intent. What problem does it solve?

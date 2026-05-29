@@ -18,8 +18,6 @@ Please review the following code change against our team standards:
 
 Perform a full review covering every section below. Be specific — reference line numbers or method names, not vague observations.
 
-> **Teaching note:** For every issue found, point to an existing file in the codebase where the same thing is done correctly: _"We already handle this correctly in `path/to/file.rb` — the fix here should follow that pattern."_ Explain issues in plain English, not just rule citations, so the author learns the principle.
-
 ---
 
 ## ✅ Correctness

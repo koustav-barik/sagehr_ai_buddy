@@ -43,21 +43,6 @@ Follow these rules:
 - Include indexes in the same migration as the column if the table is small; separate migration if large
 - Use strong migration patterns (no default values on large tables in the same statement)
 
-```ruby
-# Example skeleton
-class AddArchivedAtToEmployees < ActiveRecord::Migration[7.1]
-  def up
-    add_column :employees, :archived_at, :datetime
-    add_index :employees, :archived_at
-  end
-
-  def down
-    remove_index :employees, :archived_at
-    remove_column :employees, :archived_at
-  end
-end
-```
-
 ### Step 4 — Update the model
 List any changes needed to the model:
 - Add/update validations
@@ -73,4 +58,3 @@ bundle exec rails db:migrate
 ```
 to verify the migration is reversible. Run any affected specs with `runCommands` to confirm nothing broke.
 
-> **Teaching note:** Explain each decision in plain English as you go — why this column is nullable, why the index is added here, what would happen if someone ran this on a production table with millions of rows. Point to the most similar existing migration from Step 0 throughout.

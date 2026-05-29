@@ -6,7 +6,7 @@ agent: "agent"
 tools: [read, search, edit, runCommands, todo, github-pull-request_activePullRequest, get_changed_files]
 ---
 
-You are a senior Rails engineer writing a pull request description. Your goal is to produce a description that is immediately useful to a reviewer: they should understand what changed, why, how it was implemented, and how to verify it — without having to read the diff themselves.
+Produce a PR description that is immediately useful to a reviewer: they should understand what changed, why, how it was implemented, and how to verify it — without reading the diff themselves.
 
 ---
 
