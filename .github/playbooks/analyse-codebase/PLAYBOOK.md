@@ -26,8 +26,18 @@ Extract from the ticket or requirement description:
 - **Preserved behaviours** — what currently works that must not break?
 - **Module / component** — which area of the product does this belong to?
 
+**For bug tickets**, extract all five explicitly before searching anything:
+
+| Question | Answer |
+|---|---|
+| What is broken? | [the feature/behaviour that fails] |
+| When does it break? | [specific trigger or condition] |
+| When does it work? | [the working path — this is the comparison target] |
+| Who is affected? | [user role or system that experiences it] |
+| Domain nouns? | [every model/concept name — each is a potential filename] |
+
 > **Narrate after parsing:**
-> Show the extracted entities as a short table. Explain why each noun matters — _"Every noun in a ticket is a potential file name. `OnboardingTask` almost certainly maps to an `OnboardingTask` model and an `OnboardingTasksController`."_ If the ticket describes both a broken path and a working path, name both explicitly — that contrast is your primary debugging target.
+> Show the extracted entities as a short table. Explain why each noun matters — _"Every noun in a ticket is a potential file name. `OnboardingTask` almost certainly maps to an `OnboardingTask` model and an `OnboardingTasksController`."_ For bug tickets, name both the broken path and the working path explicitly before searching — that contrast is your primary debugging target.
 
 ---
 
@@ -51,12 +61,15 @@ For each key entity and concept identified in Step 1, search systematically in t
 >
 > ```
 > **Why I'm looking here:** [what question this search answers]
-> **What I searched:** [the grep/find pattern and path]
+> **What I searched:** `grep -r "<DomainNoun>" app/controllers/ --include="*.rb" -l`
+>   — flags explained: [e.g. "-r = recursive, --include=*.rb = Ruby files only, -l = filenames only"]
 > **What I found:** [the result — files or lines]
 > **What this tells me:** [what you learned and how it connects to the ticket]
 > ```
 >
-> Always chase the inheritance chain. When a controller inherits from a parent (`class Foo < Bar`), say so explicitly: _"The `create` action isn't in this file — it's inherited from `Bar`. That's where the bug will be."_ Always flag guard clauses (`return unless`, `return if`) — they are the most common place bugs silently hide.
+> **Flag explanation is mandatory** — whenever you use a search command, briefly explain what each flag does.
+>
+> Always chase the inheritance chain. When a controller inherits from a parent (`class Foo < Bar`), say so explicitly. Always flag guard clauses (`return unless`, `return if`) — they are the most common place bugs silently hide. A guard like `return unless resource_class == OffboardingTask` in an onboarding context means the method exits immediately without raising any error.
 
 ---
 

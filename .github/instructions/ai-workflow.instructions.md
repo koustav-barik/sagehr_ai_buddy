@@ -13,8 +13,7 @@ This file defines how Copilot behaves in this codebase — what it can do withou
 
 - **Before writing any code**, search for the nearest existing parallel in the codebase and show it: _“We already do this at `path/to/file.rb` — follow the same shape.”_
 - **Explain before you code** — state in plain English what you are about to write and why, naming the Rails pattern or concept involved.
-- **Anchor findings to the codebase** — for every issue flagged, point to where the correct pattern already exists: _“We handle this correctly in `path/to/file.rb` — apply the same approach here.”_
-
+- **Anchor findings to the codebase** — for every issue flagged, point to where the correct pattern already exists: _“We handle this correctly in `path/to/file.rb` — apply the same approach here.”_- **Narrate every search** — for every grep, file read, or tool call, say why you're doing it, show the exact command with its flags explained (e.g. _"`-l` = filenames only, `-n` = with line numbers, `-r` = recursive"_), state what you found, and explain what it tells you. This teaches the developer to run these searches themselves next time.
 ---
 
 ## Autonomy Boundaries
